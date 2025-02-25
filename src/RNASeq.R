@@ -1,4 +1,4 @@
-setwd("/home/acari/Documents/github/melanoma_mice_diffexp/")
+setwd("/home/acari/Documents/github/probiotics-melanoma/")
 
 # Import libraries
 library(RColorBrewer)
@@ -17,28 +17,28 @@ library(clusterProfiler)
 library(vegan)
 library(biomaRt)
 library(DOSE)
-
 library(org.Hs.eg.db)
 library(org.Mm.eg.db)
 library(Orthology.eg.db)
-
 library(lmerTest)
 library(permutes)
-library(buildmer)
 
 mypal <- brewer.pal(8, "Set1")
+
+set.seed(10)
 
 # Import data
 meta_data <- read.csv("data/metadata.tsv", sep = "\t")
 meta_data$group <- as.factor(meta_data$group)
 meta_data$batch <- as.factor(meta_data$batch)
 meta_data$File <- meta_data$sampleid
-meta_data <- meta_data[c(1,5,2,3,4)]
+meta_data <- meta_data[c(1,4,2,3)]
 meta_data$File <- paste0(meta_data$File, ".counts")
 
 ddsHTSeq <- DESeqDataSetFromHTSeqCount(sampleTable = meta_data,
                                        directory = "data/htseq/",
                                        design= ~ 0 + group + batch)
+rownames(ddsHTSeq) <- sapply(str_split(rownames(ddsHTSeq), "\\."), function(x) x[1])
 
 # Filter gene table by counts
 keep <- rowSums(counts(ddsHTSeq)>= 10) > ncol(ddsHTSeq)*0.3
@@ -48,7 +48,7 @@ ddsHTSeq <- ddsHTSeq[keep,]
 ddsHTSeq$group <- relevel(ddsHTSeq$group, ref = "M")
 
 ddsHTSeq <- DESeq(ddsHTSeq)
-resultsNames(ddsHTSeq)
+
 
 COU <- counts(ddsHTSeq, normalized=TRUE)
 # write.table(COU, "results/normalized.counts.tsv", sep = "\t", quote = F, row.names = T)
@@ -75,17 +75,24 @@ nmds.plot <- ggplot(mds.points, aes(MDS1, MDS2, col = group, shape = batch))+
     theme(legend.position = "bottom")+
     scale_color_brewer(palette = "Set1")
 
-# ggsave(filename = "figures/nmds.plot.pdf", plot = nmds.plot, device = "pdf", width = 4.25, height = 4.35)
+# ggsave(filename = "figures/nmds.plot.pdf", plot = nmds.plot, device = "pdf", width = 5, height = 5)
 
 # Make DEG tables
 DEG_BIF <- cbind(as.data.frame(res_1), COU)
 DEG_BIF <- DEG_BIF[!is.na(DEG_BIF$padj),]
+DEG_BIF <- DEG_BIF[order(DEG_BIF$log2FoldChange, decreasing = T),]
 
 DEG_LAC <- cbind(as.data.frame(res_2), COU)
 DEG_LAC <- DEG_LAC[!is.na(DEG_LAC$padj),]
+DEG_LAC <- DEG_LAC[order(DEG_LAC$log2FoldChange, decreasing = T),]
 
 DEG_BIF_LAC <- cbind(as.data.frame(res_3), COU)
 DEG_BIF_LAC <- DEG_BIF_LAC[!is.na(DEG_BIF_LAC$padj),]
+DEG_BIF_LAC <- DEG_BIF_LAC[order(DEG_BIF_LAC$log2FoldChange, decreasing = T),]
+
+# write.table(cbind(ensembl = rownames(DEG_BIF), DEG_BIF), "results/deg_bif.tsv", sep = "\t", quote = F, row.names = F)
+# write.table(cbind(ensembl = rownames(DEG_LAC), DEG_LAC), "results/deg_lac.tsv", sep = "\t", quote = F, row.names = F)
+# write.table(cbind(ensembl = rownames(DEG_BIF_LAC), DEG_BIF_LAC), "results/deg_bif_lac.tsv", sep = "\t", quote = F, row.names = F)
 
 # Get volcano plots
 VolcanoPlot1 <- EnhancedVolcano(DEG_BIF,
@@ -112,10 +119,9 @@ VolcanoPlot3 <- EnhancedVolcano(DEG_BIF_LAC,
                 labSize = 0)
 
 volcano.all <- ggarrange(VolcanoPlot1, VolcanoPlot2, VolcanoPlot3, nrow = 1, common.legend = T)
+# ggsave(filename = "figures/volcano.pdf", plot = volcano.all, device = "pdf", width = 16, height = 6)
 
-# ggsave(filename = "figures/volcano.all.pdf", plot = volcano.all, device = "pdf", width = 18, height = 7)
-
-# Enrichment MSigDB
+# MSigDB GSEA
 pathwaysDF <- msigdbr("mouse", category="H")
 pathways <- split(as.character(pathwaysDF$ensembl_gene), pathwaysDF$gs_name)
 
@@ -166,9 +172,68 @@ fgsea.all <- spread(fgsea.all, group, NES, fill = 0)
 rownames(fgsea.all) <- fgsea.all$pathway
 fgsea.all <- fgsea.all[-1]
 
-pheatmap::pheatmap(as.matrix(fgsea.all), cutree_rows = 7, cutree_cols = 2, display_numbers = T)
+heatmap.hallmark <- pheatmap::pheatmap(as.matrix(fgsea.all), cutree_rows = 7, cutree_cols = 2, display_numbers = T)
 
-# Immune cells proportion analysis
+# Immune cell types GSEA
+cell_marker_data <- read.csv("data/cell_marker_mouse.csv",sep = "\t")
+cell_names <- unique(cell_marker_data$cell_name)
+
+# cells <- cell_marker_data %>%
+#     dplyr::select(cell_name, GeneID)
+
+t_cells <- cell_names[!is.na(str_extract(cell_names, "T cell"))]
+b_cells <- cell_names[!is.na(str_extract(cell_names, "B cell"))]
+neutrophil <- cell_names[!is.na(str_extract(cell_names, "Neutrophil|neutrophil"))]
+dendritic_cell <- cell_names[!is.na(str_extract(cell_names, "Dendritic|dendritic"))]
+basophil <- cell_names[!is.na(str_extract(cell_names, "Basophil|basophil"))]
+mast_cell <- cell_names[!is.na(str_extract(cell_names, "Mast|mast"))]
+macrophage <- cell_names[!is.na(str_extract(cell_names, "Macrophage|macrophage"))]
+# histiocyte <- cell_names[!is.na(str_extract(cell_names, "Histiocyte|histiocyte"))]
+kupffer_cell <- cell_names[!is.na(str_extract(cell_names, "Kupffer|kupffer"))]
+plasma_cell <- cell_names[!is.na(str_extract(cell_names, "plasma|Plasma"))]
+innate_lymphoid <- cell_names[!is.na(str_extract(cell_names, "Innate|Lymphoid|innate|lymphoid"))]
+NK <- cell_names[!is.na(str_extract(cell_names, "NK|natural killer"))]
+
+lymphocyte <- cell_names[!is.na(str_extract(cell_names, "Lymphocyte|lymphocyte"))]
+monocyte <- cell_names[!is.na(str_extract(cell_names, "Monocyte|monocyte"))]
+granulocyte <- cell_names[!is.na(str_extract(cell_names, "Granulocyte|granulocyte"))]
+
+immune.cells <- unique(c(t_cells, b_cells, neutrophil, dendritic_cell, basophil, mast_cell, 
+         macrophage, kupffer_cell, plasma_cell, innate_lymphoid, NK, 
+         lymphocyte, monocyte, granulocyte))
+
+ens2ent <- mapIdscell_nameens2ent <- mapIds(org.Mm.eg.db, keys = rownames(COU), keytype="ENSEMBL", column = "ENTREZID")
+ens2ent <- as.data.frame(ens2ent)
+ens2ent <- cbind(ENSEMBL = rownames(ens2ent), ENTREZID = ens2ent$ens2ent)
+row.names(ens2ent) <- 1:nrow(ens2ent)
+
+DEG_BIF.rank <- as.data.frame(DEG_BIF[2])
+DEG_BIF.rank <- merge(ens2ent, cbind(rownames(DEG_BIF.rank), DEG_BIF.rank), by = 1)
+DEG_BIF.rank <- DEG_BIF.rank[!is.na(DEG_BIF.rank$ENTREZID),]
+DEG_BIF.rank <- DEG_BIF.rank[!duplicated(DEG_BIF.rank$ENTREZID),]
+
+ent.bif.rank <- DEG_BIF.rank$log2FoldChange
+names(ent.bif.rank) <- DEG_BIF.rank$ENTREZID
+ent.bif.rank <- sort(ent.bif.rank, decreasing = T)
+
+cells.bif <- GSEA(ent.bif.rank, TERM2GENE = cells[cells$cell_name %in% immune.cells,], eps = 0, pvalueCutoff = 0.05)
+cells.bif <- as.data.frame(cells.bif)
+cells.bif <- cells.bif[abs(cells.bif$NES) > 1,]
+
+DEG_LAC.rank <- as.data.frame(DEG_LAC[2])
+DEG_LAC.rank <- merge(ens2ent, cbind(rownames(DEG_LAC.rank), DEG_LAC.rank), by = 1)
+DEG_LAC.rank <- DEG_LAC.rank[!is.na(DEG_LAC.rank$ENTREZID),]
+DEG_LAC.rank <- DEG_LAC.rank[!duplicated(DEG_LAC.rank$ENTREZID),]
+
+ent.lac.rank <- DEG_LAC.rank$log2FoldChange
+names(ent.lac.rank) <- DEG_LAC.rank$ENTREZID
+ent.lac.rank <- sort(ent.lac.rank, decreasing = T)
+
+cells.lac <- GSEA(ent.lac.rank, TERM2GENE = cells[cells$cell_name %in% immune.cells,], eps = 0, pvalueCutoff = 0.05)
+cells.lac <- as.data.frame(cells.lac)
+cells.lac <- cells.lac[abs(cells.lac$NES) > 1,]
+
+# Immune cells proportion analysis: mmcp_counter
 exp.data <- COU
 rownames(exp.data) <- sapply(str_split(rownames(exp.data), "\\."), function(x) x[1])
 
