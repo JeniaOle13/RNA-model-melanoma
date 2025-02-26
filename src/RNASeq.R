@@ -194,8 +194,8 @@ heatmap.hallmark <- pheatmap::pheatmap(as.matrix(fgsea.all), cutree_rows = 7, cu
 cell_marker_data <- read.csv("data/cell_marker_mouse.csv",sep = "\t")
 cell_names <- unique(cell_marker_data$cell_name)
 
-# cells <- cell_marker_data %>%
-#     dplyr::select(cell_name, GeneID)
+cells <- cell_marker_data %>%
+    dplyr::select(cell_name, GeneID)
 
 t_cells <- cell_names[!is.na(str_extract(cell_names, "T cell"))]
 b_cells <- cell_names[!is.na(str_extract(cell_names, "B cell"))]
@@ -223,63 +223,59 @@ ens2ent <- as.data.frame(ens2ent)
 ens2ent <- cbind(ENSEMBL = rownames(ens2ent), ENTREZID = ens2ent$ens2ent)
 row.names(ens2ent) <- 1:nrow(ens2ent)
 
-get_ENTREZID_rank <- function(rank.df){
+get_ENTREZID_rank <- function(rank.df, ens2ent){
+    rank.df <- merge(ens2ent, cbind(names(rank.df), rank.df), by = 1)
+    rank.df <- rank.df[!is.na(rank.df$ENTREZID),]
+    rank.df <- rank.df[!duplicated(rank.df$ENTREZID),]
     
+    rank.ent <- as.numeric(rank.df$rank.df)
+    names(rank.ent) <- rank.df$ENTREZID
+    rank.ent <- sort(rank.ent, decreasing = T)
+    return(rank.ent)
 }
 
-DEG_BIF.rank <- as.data.frame(DEG_BIF[2])
-DEG_BIF.rank <- merge(ens2ent, cbind(rownames(DEG_BIF.rank), DEG_BIF.rank), by = 1)
-DEG_BIF.rank <- DEG_BIF.rank[!is.na(DEG_BIF.rank$ENTREZID),]
-DEG_BIF.rank <- DEG_BIF.rank[!duplicated(DEG_BIF.rank$ENTREZID),]
+ranks.bif.ent <- get_ENTREZID_rank(ranks.bif, ens2ent)
+ranks.lac.ent <- get_ENTREZID_rank(ranks.lac, ens2ent)
+ranks.bif.lac.ent <- get_ENTREZID_rank(ranks.bif.lac, ens2ent)
 
-ent.bif.rank <- DEG_BIF.rank$log2FoldChange
-names(ent.bif.rank) <- DEG_BIF.rank$ENTREZID
-ent.bif.rank <- sort(ent.bif.rank, decreasing = T)
+get_GSEA <- function(ranks.df, TERM2GENE, 
+                     eps, pvalueCutoff, minGSSize, maxGSSize){
+    gsea.df <- GSEA(ranks.df, TERM2GENE = TERM2GENE, eps = eps, 
+                      pvalueCutoff = pvalueCutoff, minGSSize = minGSSize, 
+                      maxGSSize = maxGSSize)
+    gsea.df <- as.data.frame(gsea.df)
+    gsea.df <- gsea.df[abs(gsea.df$NES) > 1,]
+    return(gsea.df)
+}
 
-cells.bif <- GSEA(ent.bif.rank, TERM2GENE = cells[cells$cell_name %in% immune.cells,], eps = 0, pvalueCutoff = 0.05, minGSSize = 20, maxGSSize = 500)
-cells.bif <- as.data.frame(cells.bif)
-cells.bif <- cells.bif[abs(cells.bif$NES) > 1,]
+set.seed(100)
+cells.bif <- get_GSEA(ranks.bif.ent, TERM2GENE = cells[cells$cell_name %in% immune.cells,],
+         eps = 0, pvalueCutoff = 0.05, minGSSize = 20, maxGSSize = 500)
+cells.lac <- get_GSEA(ranks.lac.ent, TERM2GENE = cells[cells$cell_name %in% immune.cells,],
+                      eps = 0, pvalueCutoff = 0.05, minGSSize = 20, maxGSSize = 500)
+cells.bif.lac <- get_GSEA(ranks.bif.lac.ent, TERM2GENE = cells[cells$cell_name %in% immune.cells,],
+                      eps = 0, pvalueCutoff = 0.05, minGSSize = 20, maxGSSize = 500)
 
-DEG_LAC.rank <- as.data.frame(DEG_LAC[2])
-DEG_LAC.rank <- merge(ens2ent, cbind(rownames(DEG_LAC.rank), DEG_LAC.rank), by = 1)
-DEG_LAC.rank <- DEG_LAC.rank[!is.na(DEG_LAC.rank$ENTREZID),]
-DEG_LAC.rank <- DEG_LAC.rank[!duplicated(DEG_LAC.rank$ENTREZID),]
+get_subset2 <- function(df, group){
+    df.sbs <- df[c(1,5)]
+    df.sbs$group <- group
+    return(df.sbs)
+}
 
-ent.lac.rank <- DEG_LAC.rank$log2FoldChange
-names(ent.lac.rank) <- DEG_LAC.rank$ENTREZID
-ent.lac.rank <- sort(ent.lac.rank, decreasing = T)
-
-cells.lac <- GSEA(ent.lac.rank, TERM2GENE = cells[cells$cell_name %in% immune.cells,], eps = 0, pvalueCutoff = 0.05, minGSSize = 20, maxGSSize = 500)
-cells.lac <- as.data.frame(cells.lac)
-cells.lac <- cells.lac[abs(cells.lac$NES) > 1,]
-
-DEG_BIF_LAC.rank <- as.data.frame(DEG_BIF_LAC[2])
-DEG_BIF_LAC.rank <- merge(ens2ent, cbind(rownames(DEG_BIF_LAC.rank), DEG_BIF_LAC.rank), by = 1)
-DEG_BIF_LAC.rank <- DEG_BIF_LAC.rank[!is.na(DEG_BIF_LAC.rank$ENTREZID),]
-DEG_BIF_LAC.rank <- DEG_BIF_LAC.rank[!duplicated(DEG_BIF_LAC.rank$ENTREZID),]
-
-ent.bif.lac.rank <- DEG_BIF_LAC.rank$log2FoldChange
-names(ent.bif.lac.rank) <- DEG_BIF_LAC.rank$ENTREZID
-ent.bif.lac.rank <- sort(ent.bif.lac.rank, decreasing = T)
-
-cells.bif.lac <- GSEA(ent.bif.lac.rank, TERM2GENE = cells[cells$cell_name %in% immune.cells,], eps = 0, pvalueCutoff = 0.05, minGSSize = 20, maxGSSize = 500)
-cells.bif.lac <- as.data.frame(cells.bif.lac)
-cells.bif.lac <- cells.bif.lac[abs(cells.bif.lac$NES) > 1,]
-
-cells.bif.sbs <- cells.bif[c(1,5)]
-cells.bif.sbs$group <- "M vs M_BIF"
-cells.lac.sbs <- cells.lac[c(1,5)]
-cells.lac.sbs$group <- "M vs M_LAC"
-cells.bif.lac.sbs <- cells.bif.lac[c(1,5)]
-cells.bif.lac.sbs$group <- "M_BIF vs M_LAC"
+cells.bif.sbs <- get_subset2(cells.bif, "M vs M_BIF")
+cells.lac.sbs <- get_subset2(cells.lac, "M vs M_LAC")
+cells.bif.lac.sbs <- get_subset2(cells.bif.lac, "M_BIF vs M_LAC")
 
 cells.all <- rbind(cells.bif.sbs, cells.lac.sbs, cells.bif.lac.sbs)
-colnames(cells.all)
 cells.all.s <- spread(cells.all, ID, NES, fill =  0)
 rownames(cells.all.s) <- cells.all.s$group
 cells.all.s <- cells.all.s[-1]
 
-pheatmap::pheatmap(t(cells.all.s), display_numbers = T, cutree_rows = 4)
+heatmap.immune.gsea <- pheatmap::pheatmap(t(cells.all.s), display_numbers = T, cutree_rows = 4)
+
+# pdf(file = "figures/heatmap.immune.gsea.pdf", width = 4.75, height = 6.5)
+# heatmap.immune.gsea
+# dev.off()
 
 # Immune cells proportion analysis: mmcp_counter
 exp.data <- COU
@@ -287,15 +283,26 @@ exp.data <- COU
 
 immune_cells <- deconvolute_mmcp_counter(exp.data, log2 = F, genome = "GCRm39", gene_id = "ENSEMBL.ID")
 
+# write.table(immune_cells, "results/mmcp_counter.tsv", sep = "\t", row.names = T, quote = F)
+
 column.annot <- meta_data
 rownames(column.annot) <- column.annot$sampleid
-column.annot <- column.annot[-c(1,2,4)]
+column.annot <- column.annot[-c(1,2)]
 column.annot$batch <- as.factor(column.annot$batch)
+
+annot.colors <- list(group=c(M=mypal[1], M_BIF = mypal[2], M_LAC = mypal[3]), 
+                     batch = c(`1` = "darkred", `2` = "darkblue"))
 
 heatmap.immune <- pheatmap::pheatmap(log(immune_cells+0.001), 
                    scale = "column", 
                    annotation_col = column.annot, 
-                   cutree_cols = 4, cutree_rows = 6)
+                   cutree_cols = 4, cutree_rows = 6, 
+                   annotation_colors = annot.colors, 
+                   show_colnames = F)
+
+# pdf(file = "figures/heatmap.immune.pdf", width = 7, height = 3.75)
+# heatmap.immune
+# dev.off()
 
 immune_cells.df <- as.data.frame(t(immune_cells))
 immune_cells.df <- merge(meta_data, cbind(rownames(immune_cells.df), immune_cells.df), by = 1)[-2]
@@ -315,13 +322,15 @@ tcells_boxplot <- ggplot(immune_cells.df, aes(`T cells`, group, fill = group))+
     xlab("Mmcp counter T cells score")+
     ylab("Group")
 
+# ggsave(filename = "figures/tcells_boxplot.pdf", plot = tcells_boxplot, device = "pdf", width = 4, height = 2.5)
+
 # Co-expression analysis
-ddsHTSeq2 <- DESeqDataSetFromHTSeqCount(sampleTable = meta_data[-c(4,5)],
+ddsHTSeq2 <- DESeqDataSetFromHTSeqCount(sampleTable = meta_data[-c(4)],
                                        directory = "data/htseq/",
                                        design= ~ 0 + group)
 
 final_exp <- exp_preprocess(
-    ddsHTSeq2, min_exp = 10, variance_filter = TRUE, n = 2000
+    ddsHTSeq2, min_exp = 10, variance_filter = TRUE, percentile = 0.35
 )
 
 rownames(final_exp) <- sapply(str_split(rownames(final_exp), "\\."), function(x) x[1])
