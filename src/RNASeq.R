@@ -120,6 +120,7 @@ volcano.all <- ggarrange(VolcanoPlot1, VolcanoPlot2, VolcanoPlot3, nrow = 1, com
 # ggsave(filename = "figures/volcano.pdf", plot = volcano.all, device = "pdf", width = 16, height = 6)
 
 # MSigDB GSEA
+## Hallmark
 pathwaysDF <- msigdbr("mouse", category="H")
 pathways <- split(as.character(pathwaysDF$ensembl_gene), pathwaysDF$gs_name)
 
@@ -153,16 +154,30 @@ fgsea.bif.lac <- fgsea(pathways = pathways,
                    minSize  = 15,
                    maxSize  = 500)
 
-fgsea.bif.sbs <- fgsea.bif[fgsea.bif$padj < 0.05,]
-fgsea.lac.sbs <- fgsea.lac[fgsea.lac$padj < 0.05,]
-fgsea.bif.lac.sbs <- fgsea.bif.lac[fgsea.bif.lac$padj < 0.05,]
+filter_pval <- function(fgsea){
+    fgsea <- as.data.frame(fgsea)
+    fgsea <- fgsea[fgsea$padj < 0.05,]
+    fgsea <- fgsea[order(fgsea$NES, decreasing = T),]
+    return(fgsea)
+}
 
-fgsea.bif.sbs <- as.data.frame(fgsea.bif.sbs)[c(1,6)]
-fgsea.bif.sbs$group <- "M vs M_BIF"
-fgsea.lac.sbs <- as.data.frame(fgsea.lac.sbs)[c(1,6)]
-fgsea.lac.sbs$group <- "M vs M_LAC"
-fgsea.bif.lac.sbs <- as.data.frame(fgsea.bif.lac.sbs)[c(1,6)]
-fgsea.bif.lac.sbs$group <- "M_BIF vs M_LAC"
+fgsea.bif.filter <- filter_pval(fgsea.bif)
+fgsea.lac.filter <- filter_pval(fgsea.lac)
+fgsea.bif.lac.filter <- filter_pval(fgsea.bif.lac)
+
+# write.table(fgsea.bif.filter[-8], "results/fgsea.bif.tsv", sep = "\t", quote = F, row.names = F)
+# write.table(fgsea.lac.filter[-8], "results/fgsea.lac.tsv", sep = "\t", quote = F, row.names = F)
+# write.table(fgsea.bif.lac.filter[-8], "results/fgsea.bif.lac.tsv", sep = "\t", quote = F, row.names = F)
+
+get_subset <- function(df, group){
+    df.sbs <- df[c(1,6)]
+    df.sbs$group <- group
+    return(df.sbs)
+}
+
+fgsea.bif.sbs <- get_subset(fgsea.bif.filter, "M vs M_BIF")
+fgsea.lac.sbs <- get_subset(fgsea.lac.filter, "M vs M_LAC")
+fgsea.bif.lac.sbs <- get_subset(fgsea.bif.lac.filter, "M_BIF vs M_LAC")
 
 fgsea.all <- rbind(fgsea.bif.sbs, fgsea.lac.sbs, fgsea.bif.lac.sbs)
 fgsea.all <- spread(fgsea.all, group, NES, fill = 0)
@@ -171,7 +186,11 @@ fgsea.all <- fgsea.all[-1]
 
 heatmap.hallmark <- pheatmap::pheatmap(as.matrix(fgsea.all), cutree_rows = 7, cutree_cols = 2, display_numbers = T)
 
-# Immune cell types GSEA
+# pdf(file = "figures/heatmap.hallmark.pdf", width = 6.5, height = 8.5)
+# heatmap.hallmark
+# dev.off()
+
+# Immune cell types GSEA (Cell Marker)
 cell_marker_data <- read.csv("data/cell_marker_mouse.csv",sep = "\t")
 cell_names <- unique(cell_marker_data$cell_name)
 
@@ -203,6 +222,10 @@ ens2ent <- mapIdscell_nameens2ent <- mapIds(org.Mm.eg.db, keys = rownames(COU), 
 ens2ent <- as.data.frame(ens2ent)
 ens2ent <- cbind(ENSEMBL = rownames(ens2ent), ENTREZID = ens2ent$ens2ent)
 row.names(ens2ent) <- 1:nrow(ens2ent)
+
+get_ENTREZID_rank <- function(rank.df){
+    
+}
 
 DEG_BIF.rank <- as.data.frame(DEG_BIF[2])
 DEG_BIF.rank <- merge(ens2ent, cbind(rownames(DEG_BIF.rank), DEG_BIF.rank), by = 1)
@@ -293,8 +316,6 @@ tcells_boxplot <- ggplot(immune_cells.df, aes(`T cells`, group, fill = group))+
     ylab("Group")
 
 # Co-expression analysis
-library(BioNERO)
-
 ddsHTSeq2 <- DESeqDataSetFromHTSeqCount(sampleTable = meta_data[-c(4,5)],
                                        directory = "data/htseq/",
                                        design= ~ 0 + group)
