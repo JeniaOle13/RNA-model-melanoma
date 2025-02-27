@@ -330,14 +330,10 @@ ddsHTSeq2 <- DESeqDataSetFromHTSeqCount(sampleTable = meta_data[-c(4)],
                                        design= ~ 0 + group)
 
 final_exp <- exp_preprocess(
-    ddsHTSeq2, min_exp = 10, variance_filter = TRUE, percentile = 0.35
+    ddsHTSeq2, min_exp = 10, variance_filter = TRUE, n = 4000
 )
 
 rownames(final_exp) <- sapply(str_split(rownames(final_exp), "\\."), function(x) x[1])
-
-# plot_heatmap(final_exp, type = "samplecor", show_rownames = FALSE)
-# plot_PCA(final_exp)+
-#     ggtitle("PCA")
 
 sft <- SFT_fit(final_exp, net_type = "signed hybrid", cor_method = "pearson")
 power <- sft$power
@@ -348,35 +344,47 @@ net <- exp2gcn(
 )
 
 plot_dendro_and_colors(net)
-plot_eigengene_network(net)
+
+# ggsave(filename = "figures/co-expression/dendrogram_genes_modules.pdf", device = "pdf", width = 10, height = 5)
+
 plot_ngenes_per_module(net)
 
-module_stability(final_exp, net, nRuns = 5)
+# ggsave(filename = "figures/co-expression/ngenes_per_module.pdf", device = "pdf", width = 5, height = 4)
+
+ms <- module_stability(final_exp, net, nRuns = 5)
+
+# ggsave(filename = "figures/co-expression/module_stability.pdf", device = "pdf", width = 8, height = 5)
 
 MEtrait <- module_trait_cor(exp = final_exp, MEs = net$MEs)
 
-plot_module_trait_cor(MEtrait)
+module_trait_cor_plot <- plot_module_trait_cor(MEtrait)
+
+# pdf(file = "figures/co-expression/module_trait_cor_plot.pdf", width = 5, height = 4.5)
+# module_trait_cor_plot
+# dev.off()
 
 plot_expression_profile(
     exp = final_exp, 
     net = net, 
     plot_module = TRUE, 
-    modulename = "magenta"
-)
+    modulename = "skyblue3"
+) + scale_fill_brewer(palette = "Set1")
+
+# ggsave(filename = "figures/co-expression/expression_profile.pdf", device = "pdf", width = 8, height = 5)
 
 genes_and_modules <- net$genes_and_modules
-megenta_modules <- genes_and_modules[genes_and_modules$Modules == "magenta",]
+skyblue3_modules <- genes_and_modules[genes_and_modules$Modules == "skyblue3",]
 
 # write.table(genes_and_modules, "results/genes_and_modules.tsv", sep = "\t", quote = F, row.names = F)
-# write.table(megenta_modules, "results/megenta_modules.tsv", sep = "\t", quote = F, row.names = F)
+# write.table(skyblue3_modules, "results/skyblue3_modules.tsv", sep = "\t", quote = F, row.names = F)
 
 hubs <- get_hubs_gcn(final_exp, net)
-hubs_magenta <- hubs[hubs$Module == "magenta",]
+hubs_skyblue3 <- hubs[hubs$Module == "skyblue3",]
 
-# write.table(hubs_magenta, "results/hubs_magenta.tsv", sep = "\t", quote = F, row.names = F)
+# write.table(hubs_skyblue3, "results/hubs_skyblue3.tsv", sep = "\t", quote = F, row.names = F)
 
-edges <- get_edge_list(net, module="magenta")
-edges_filtered <- get_edge_list(net, module = "magenta", filter = TRUE, method = "optimalSFT")
+edges <- get_edge_list(net, module="skyblue3")
+edges_filtered <- get_edge_list(net, module = "skyblue3", filter = TRUE, method = "optimalSFT", r_optimal_test = 0.7)
 
 plot_gcn(
     edgelist_gcn = edges_filtered, 
@@ -384,3 +392,5 @@ plot_gcn(
     color_by = "module", 
     hubs = hubs
 )
+
+# ggsave(filename = "figures/co-expression/skyblue3_network.pdf", device = "pdf", width = 5, height = 5)
