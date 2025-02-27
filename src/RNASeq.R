@@ -4,6 +4,7 @@ setwd("/home/acari/Documents/github/probiotics-melanoma/")
 library(vegan)
 library(fgsea)
 library(limma)
+library(BioNERO)
 library(DESeq2)
 library(lmerTest)
 library(permutes)
@@ -51,6 +52,8 @@ ddsHTSeq <- DESeq(ddsHTSeq)
 
 COU <- counts(ddsHTSeq, normalized=TRUE)
 # write.table(COU, "results/normalized.counts.tsv", sep = "\t", quote = F, row.names = T)
+
+counts(ddsHTSeq)
 
 contr_1 <- makeContrasts(groupM - groupM_BIF, levels = resultsNames(ddsHTSeq))
 contr_2 <- makeContrasts(groupM - groupM_LAC, levels = resultsNames(ddsHTSeq))

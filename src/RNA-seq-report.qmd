@@ -1,0 +1,376 @@
+---
+title: "RNA-seq-report"
+author: "EI Olekhnovich"
+format: html
+editor: visual
+---
+
+# Analysis of RNA-seq data
+
+1\. Import libraries.
+
+```{r}
+#| label: Import libraries
+#| echo: true
+#| message: false
+#| warning: false
+library(vegan)
+library(fgsea)
+library(limma)
+library(BioNERO)
+library(DESeq2)
+library(lmerTest)
+library(permutes)
+library(tidyverse)
+library(immunedeconv)
+library(clusterProfiler)
+
+library(ggpubr)
+library(ggplot2)
+library(pheatmap)
+library(RColorBrewer)
+library(ComplexHeatmap)
+library(EnhancedVolcano)
+
+library(msigdbr)
+library(biomaRt)
+library(org.Hs.eg.db)
+library(org.Mm.eg.db)
+library(Orthology.eg.db)
+
+library(DT)
+```
+
+```{r}
+#| label: Set pallete and seed
+#| include: false
+mypal <- brewer.pal(8, "Set1")
+set.seed(10)
+```
+
+2.  Import data and create DESeq2 object.
+
+```{r}
+#| label: Import data and create DESeq2 object
+#| echo: true
+#| message: false
+#| warning: false
+# Import data
+meta_data <- read.csv("../data/metadata.tsv", sep = "\t")
+meta_data$group <- as.factor(meta_data$group)
+meta_data$batch <- as.factor(meta_data$batch)
+meta_data$File <- meta_data$sampleid
+meta_data <- meta_data[c(1,4,2,3)]
+meta_data$File <- paste0(meta_data$File, ".counts")
+
+ddsHTSeq <- DESeqDataSetFromHTSeqCount(sampleTable = meta_data,
+                                       directory = "../data/htseq/",
+                                       design= ~ 0 + group + batch)
+rownames(ddsHTSeq) <- sapply(str_split(rownames(ddsHTSeq), "\\."), function(x) x[1])
+```
+
+3.  Filter gene table by counts.
+
+```{r}
+#| label: Filter gene table by counts
+#| echo: true
+#| message: false
+#| warning: false
+keep <- rowSums(counts(ddsHTSeq)>= 10) > ncol(ddsHTSeq)*0.3
+ddsHTSeq <- ddsHTSeq[keep,]
+```
+
+4.  Differential expression analysis.
+
+```{r}
+#| label: Differential expression analysis.
+#| echo: true
+#| message: false
+#| warning: false
+ddsHTSeq$group <- relevel(ddsHTSeq$group, ref = "M")
+ddsHTSeq <- DESeq(ddsHTSeq)
+
+contr_1 <- makeContrasts(groupM - groupM_BIF, levels = resultsNames(ddsHTSeq))
+contr_2 <- makeContrasts(groupM - groupM_LAC, levels = resultsNames(ddsHTSeq))
+contr_3 <- makeContrasts(groupM_BIF - groupM_LAC, levels = resultsNames(ddsHTSeq))
+
+res_1 <- results(ddsHTSeq, contrast=contr_1)
+res_2 <- results(ddsHTSeq, contrast=contr_2)
+res_3 <- results(ddsHTSeq, contrast=contr_3)
+```
+
+5\. Get normalized counts table.
+
+```{r}
+#| label: Get count table.
+#| echo: true
+#| message: false
+#| warning: false
+COU <- counts(ddsHTSeq, normalized=TRUE)
+
+datatable(COU, 
+          caption = "Table 1. Normalized counts.",
+          style = "bootstrap5", 
+          extensions = 'Buttons', 
+          options = list(dom = 'Bfrtip',
+                         buttons = c('csv', 'excel'))) %>% 
+    formatStyle(columns = colnames(COU), fontSize = '75%')
+```
+
+6.  Get DEG tables.
+
+```{r}
+#| label: Get DEG tables.
+#| echo: true
+#| message: false
+#| warning: false
+get_DEG <- function(res){
+    DEG <- cbind(as.data.frame(res), COU)
+    DEG <- DEG[!is.na(DEG$padj),]
+    DEG <- DEG[order(DEG$log2FoldChange, decreasing = T),]
+    return(DEG)
+}
+
+DEG_BIF <- get_DEG(res_1)
+DEG_LAC <- get_DEG(res_2)
+DEG_BIF_LAC <- get_DEG(res_3)
+
+datatable(DEG_BIF, 
+          caption = "Table 2. DEG M vs M_BIF.",
+          style = "bootstrap5", 
+          extensions = 'Buttons', 
+          options = list(dom = 'Bfrtip',
+                         buttons = c('csv', 'excel'))) %>% 
+    formatStyle(columns = colnames(DEG_BIF), fontSize = '75%')
+
+datatable(DEG_LAC, 
+          caption = "Table 3. DEG M vs M_LAC.",
+          style = "bootstrap5", 
+          extensions = 'Buttons', 
+          options = list(dom = 'Bfrtip',
+                         buttons = c('csv', 'excel'))) %>% 
+    formatStyle(columns = colnames(DEG_LAC), fontSize = '75%')
+
+datatable(DEG_BIF_LAC, 
+          caption = "Table 4. DEG M_BIF vs M_LAC.",
+          style = "bootstrap5", 
+          extensions = 'Buttons', 
+          options = list(dom = 'Bfrtip',
+                         buttons = c('csv', 'excel'))) %>% 
+    formatStyle(columns = colnames(DEG_BIF_LAC), fontSize = '75%')
+```
+
+7.  Get volcano plots
+
+```{r, fig.width=12, fig.height=5}
+#| label: Get volcano plots
+#| echo: true
+#| fig-cap: "Figure 1. Volcano plots show DEG between experimental groups."
+#| message: false
+#| warning: false
+VolcanoPlot1 <- EnhancedVolcano(DEG_BIF,
+                lab = rownames(DEG_BIF),
+                x = 'log2FoldChange',
+                y = 'padj', pCutoff = 0.05, 
+                subtitle = "", 
+                title = "M vs M_BIF", labSize = 0)
+
+VolcanoPlot2 <- EnhancedVolcano(DEG_LAC,
+                lab = rownames(DEG_LAC),
+                x = 'log2FoldChange',
+                y = 'padj', pCutoff = 0.05, 
+                subtitle = "", 
+                title = "M vs M_LAC", 
+                labSize = 0)
+
+VolcanoPlot3 <- EnhancedVolcano(DEG_BIF_LAC,
+                lab = rownames(DEG_BIF_LAC),
+                x = 'log2FoldChange',
+                y = 'padj', pCutoff = 0.05, 
+                subtitle = "", 
+                title = "M_BIF vs M_LAC", 
+                labSize = 0)
+
+volcano.all <- ggarrange(VolcanoPlot1, 
+                         VolcanoPlot2, 
+                         VolcanoPlot3, nrow = 1, 
+                         common.legend = T)
+volcano.all
+```
+
+8.  MSigDB GSEA.
+
+```{r}
+#| label: MSigDB GSEA.
+#| echo: true
+#| message: false
+#| warning: false
+pathwaysDF <- msigdbr("mouse", category="H")
+pathways <- split(as.character(pathwaysDF$ensembl_gene), pathwaysDF$gs_name)
+
+get_ranks <- function(DEG){
+    ranks.df <- DEG$log2FoldChange
+    names(ranks.df) <- rownames(DEG)
+    names(ranks.df) <- sapply(str_split(names(ranks.df), "\\."), function(x) x[1])    
+    ranks.df <- sort(ranks.df, decreasing = T)
+    return(ranks.df)
+}
+
+ranks.bif <- get_ranks(DEG_BIF)
+ranks.lac <- get_ranks(DEG_LAC)
+ranks.bif.lac <- get_ranks(DEG_BIF_LAC)
+
+fgsea.bif <- fgsea(pathways = pathways, 
+                  stats    = ranks.bif,
+                  eps      = 0.0,
+                  minSize  = 15,
+                  maxSize  = 500)
+
+fgsea.lac <- fgsea(pathways = pathways, 
+                     stats    = ranks.lac,
+                     eps      = 0.0,
+                     minSize  = 15,
+                     maxSize  = 500)
+
+fgsea.bif.lac <- fgsea(pathways = pathways, 
+                   stats    = ranks.bif.lac,
+                   eps      = 0.0,
+                   minSize  = 15,
+                   maxSize  = 500)
+
+filter_pval <- function(fgsea.res){
+    fgsea.res <- as.data.frame(fgsea.res)
+    fgsea.res <- fgsea.res[fgsea.res$padj < 0.05,]
+    fgsea.res <- fgsea.res[order(fgsea.res$NES, decreasing = T),]
+    fgsea.res <- fgsea.res[-8]
+    return(fgsea.res)
+}
+
+fgsea.bif.filter <- filter_pval(fgsea.bif)
+fgsea.lac.filter <- filter_pval(fgsea.lac)
+fgsea.bif.lac.filter <- filter_pval(fgsea.bif.lac)
+
+datatable(fgsea.bif.filter, 
+          caption = "Table 5. DEG M vs M_BIF.",
+          style = "bootstrap5", 
+          extensions = 'Buttons', 
+          options = list(dom = 'Bfrtip',
+                         buttons = c('csv', 'excel'))) %>% 
+    formatStyle(columns = colnames(fgsea.bif.filter), fontSize = '75%')
+
+datatable(fgsea.lac.filter, 
+          caption = "Table 6. DEG M vs M_LAC.",
+          style = "bootstrap5", 
+          extensions = 'Buttons', 
+          options = list(dom = 'Bfrtip',
+                         buttons = c('csv', 'excel'))) %>% 
+    formatStyle(columns = colnames(fgsea.lac.filter), fontSize = '75%')
+
+datatable(fgsea.bif.lac.filter, 
+          caption = "Table 7. DEG M_BIF vs M_LAC.",
+          style = "bootstrap5", 
+          extensions = 'Buttons', 
+          options = list(dom = 'Bfrtip',
+                         buttons = c('csv', 'excel'))) %>% 
+    formatStyle(columns = colnames(fgsea.bif.lac.filter), fontSize = '75%')
+```
+
+```{r fig.height=9, fig.width=7}
+#| label: Plot MSigDB hallmark gsea heatmap
+#| echo: true
+#| fig-cap: "Figure 2. MSigDB Hallmark GSEA heatmap."
+#| message: false
+#| warning: false
+get_subset <- function(df, group){
+    df.sbs <- df[c(1,6)]
+    df.sbs$group <- group
+    return(df.sbs)
+}
+
+fgsea.bif.sbs <- get_subset(fgsea.bif.filter, "M vs M_BIF")
+fgsea.lac.sbs <- get_subset(fgsea.lac.filter, "M vs M_LAC")
+fgsea.bif.lac.sbs <- get_subset(fgsea.bif.lac.filter, "M_BIF vs M_LAC")
+
+fgsea.all <- rbind(fgsea.bif.sbs, fgsea.lac.sbs, fgsea.bif.lac.sbs)
+fgsea.all <- spread(fgsea.all, group, NES, fill = 0)
+rownames(fgsea.all) <- fgsea.all$pathway
+fgsea.all <- fgsea.all[-1]
+
+heatmap.hallmark <- pheatmap::pheatmap(as.matrix(fgsea.all), cutree_rows = 7, cutree_cols = 2, display_numbers = T)
+heatmap.hallmark
+```
+
+9.  Cell marker GSEA.
+
+```{r}
+cell_marker_data <- read.csv("data/cell_marker_mouse.csv",sep = "\t")
+cell_names <- unique(cell_marker_data$cell_name)
+
+cells <- cell_marker_data %>%
+    dplyr::select(cell_name, GeneID)
+
+t_cells <- cell_names[!is.na(str_extract(cell_names, "T cell"))]
+b_cells <- cell_names[!is.na(str_extract(cell_names, "B cell"))]
+neutrophil <- cell_names[!is.na(str_extract(cell_names, "Neutrophil|neutrophil"))]
+dendritic_cell <- cell_names[!is.na(str_extract(cell_names, "Dendritic|dendritic"))]
+basophil <- cell_names[!is.na(str_extract(cell_names, "Basophil|basophil"))]
+mast_cell <- cell_names[!is.na(str_extract(cell_names, "Mast|mast"))]
+macrophage <- cell_names[!is.na(str_extract(cell_names, "Macrophage|macrophage"))]
+# histiocyte <- cell_names[!is.na(str_extract(cell_names, "Histiocyte|histiocyte"))]
+kupffer_cell <- cell_names[!is.na(str_extract(cell_names, "Kupffer|kupffer"))]
+plasma_cell <- cell_names[!is.na(str_extract(cell_names, "plasma|Plasma"))]
+innate_lymphoid <- cell_names[!is.na(str_extract(cell_names, "Innate|Lymphoid|innate|lymphoid"))]
+NK <- cell_names[!is.na(str_extract(cell_names, "NK|natural killer"))]
+
+lymphocyte <- cell_names[!is.na(str_extract(cell_names, "Lymphocyte|lymphocyte"))]
+monocyte <- cell_names[!is.na(str_extract(cell_names, "Monocyte|monocyte"))]
+granulocyte <- cell_names[!is.na(str_extract(cell_names, "Granulocyte|granulocyte"))]
+
+immune.cells <- unique(c(t_cells, b_cells, neutrophil, dendritic_cell, basophil, mast_cell, 
+         macrophage, kupffer_cell, plasma_cell, innate_lymphoid, NK, 
+         lymphocyte, monocyte, granulocyte))
+
+ens2ent <- mapIdscell_nameens2ent <- mapIds(org.Mm.eg.db, keys = rownames(COU), keytype="ENSEMBL", column = "ENTREZID")
+ens2ent <- as.data.frame(ens2ent)
+ens2ent <- cbind(ENSEMBL = rownames(ens2ent), ENTREZID = ens2ent$ens2ent)
+row.names(ens2ent) <- 1:nrow(ens2ent)
+
+get_ENTREZID_rank <- function(rank.df, ens2ent){
+    rank.df <- merge(ens2ent, cbind(names(rank.df), rank.df), by = 1)
+    rank.df <- rank.df[!is.na(rank.df$ENTREZID),]
+    rank.df <- rank.df[!duplicated(rank.df$ENTREZID),]
+    
+    rank.ent <- as.numeric(rank.df$rank.df)
+    names(rank.ent) <- rank.df$ENTREZID
+    rank.ent <- sort(rank.ent, decreasing = T)
+    return(rank.ent)
+}
+
+ranks.bif.ent <- get_ENTREZID_rank(ranks.bif, ens2ent)
+ranks.lac.ent <- get_ENTREZID_rank(ranks.lac, ens2ent)
+ranks.bif.lac.ent <- get_ENTREZID_rank(ranks.bif.lac, ens2ent)
+
+get_GSEA <- function(ranks.df, TERM2GENE, 
+                     eps, pvalueCutoff, minGSSize, maxGSSize){
+    gsea.df <- GSEA(ranks.df, TERM2GENE = TERM2GENE, eps = eps, 
+                      pvalueCutoff = pvalueCutoff, minGSSize = minGSSize, 
+                      maxGSSize = maxGSSize)
+    gsea.df <- as.data.frame(gsea.df)
+    gsea.df <- gsea.df[abs(gsea.df$NES) > 1,]
+    return(gsea.df)
+}
+
+set.seed(100)
+cells.bif <- get_GSEA(ranks.bif.ent, 
+                      TERM2GENE = cells[cells$cell_name %in% immune.cells,],
+                      eps = 0, pvalueCutoff = 0.05, 
+                      minGSSize = 20, maxGSSize = 500)
+
+cells.lac <- get_GSEA(ranks.lac.ent, 
+                      TERM2GENE = cells[cells$cell_name %in% immune.cells,],
+                      eps = 0, pvalueCutoff = 0.05, 
+                      minGSSize = 20, maxGSSize = 500)
+
+cells.bif.lac <- get_GSEA(ranks.bif.lac.ent, TERM2GENE = cells[cells$cell_name %in% immune.cells,],
+                      eps = 0, pvalueCutoff = 0.05, minGSSize = 20, maxGSSize = 500)
+```
