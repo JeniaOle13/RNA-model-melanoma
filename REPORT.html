@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.6.42">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Bulk RNA-seq analysis of mice model melanoma</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="REPORT_files/libs/clipboard/clipboard.min.js"></script>
+<script src="REPORT_files/libs/quarto-html/quarto.js"></script>
+<script src="REPORT_files/libs/quarto-html/popper.min.js"></script>
+<script src="REPORT_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="REPORT_files/libs/quarto-html/anchor.min.js"></script>
+<link href="REPORT_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="REPORT_files/libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="REPORT_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="REPORT_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="REPORT_files/libs/bootstrap/bootstrap-d4e7d5ef65adc387aaff4f2a0e3cef17.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="REPORT_files/libs/quarto-diagram/mermaid.min.js"></script>
+<script src="REPORT_files/libs/quarto-diagram/mermaid-init.js"></script>
+<link href="REPORT_files/libs/quarto-diagram/mermaid.css" rel="stylesheet">
+<link href="REPORT_files/libs/htmltools-fill-0.5.8.1/fill.css" rel="stylesheet">
+<script src="REPORT_files/libs/htmlwidgets-1.6.4/htmlwidgets.js"></script>
+<link href="REPORT_files/libs/datatables-css-0.0.0/datatables-crosstalk.css" rel="stylesheet">
+<script src="REPORT_files/libs/datatables-binding-0.33/datatables.js"></script>
+<script src="REPORT_files/libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<link href="REPORT_files/libs/dt-core-bootstrap5-1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+<script src="REPORT_files/libs/dt-core-bootstrap5-1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="REPORT_files/libs/dt-core-bootstrap5-1.13.6/js/dataTables.bootstrap5.min.js"></script>
+<script src="REPORT_files/libs/jszip-1.13.6/jszip.min.js"></script>
+<link href="REPORT_files/libs/dt-ext-buttons-bootstrap5-1.13.6/css/buttons.bootstrap5.min.css" rel="stylesheet">
+<script src="REPORT_files/libs/dt-ext-buttons-bootstrap5-1.13.6/js/dataTables.buttons.min.js"></script>
+<script src="REPORT_files/libs/dt-ext-buttons-bootstrap5-1.13.6/js/buttons.html5.min.js"></script>
+<script src="REPORT_files/libs/dt-ext-buttons-bootstrap5-1.13.6/js/buttons.colVis.min.js"></script>
+<script src="REPORT_files/libs/dt-ext-buttons-bootstrap5-1.13.6/js/buttons.print.min.js"></script>
+<script src="REPORT_files/libs/dt-ext-buttons-bootstrap5-1.13.6/js/buttons.bootstrap5.min.js"></script>
+<link href="REPORT_files/libs/crosstalk-1.2.1/css/crosstalk.min.css" rel="stylesheet">
+<script src="REPORT_files/libs/crosstalk-1.2.1/js/crosstalk.min.js"></script>
+<script src="REPORT_files/libs/font-awesome-6.5.2/js/script.js"></script>
+
+
+</head>
+
+<body class="fullcontent">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Bulk RNA-seq analysis of mice model melanoma</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="material-and-methods" class="level1">
+<h1>Material and methods</h1>
+<p style="text-align: justify;">
+Quality control of experimental mice transcriptomics data was performed using <a href="https://github.com/s-andrews/FastQC">FastQC</a> (v0.12.1). <a href="https://github.com/MultiQC/MultiQC">MultiQC</a> tool was used for aggregation of <code>FastQC</code> reports [Ewels et al., 2016]. The <a href="https://github.com/OpenGene/fastp">fastp</a> (v0.23.4) was used to filter out low-quality reads [Chen et al., 2018]. Read alignment was performed by <a href="https://github.com/alexdobin/STAR">STAR</a> (v2.7.11) [Dobin et al., 2013] using the <em>Mus musculus</em> reference genome downloaded from <a href="https://www.gencodegenes.org/mouse/">GENCODE</a> <code>GRCm39.vM36</code> and the <code>gtf</code> file <code>gencode.vM36.chr_patch_hapl_scaff.annotation.gtf</code>. Count of gene expression profiles was performed using <a href="https://github.com/simon-anders/htseq">HTSeq count</a> (v2.0.5) [Anders et al., 2015]. Differential expression analysis between experimental groups was performed using <a href="https://github.com/thelovelab/DESeq2">DESeq2</a> (v1.44.0) [Love et al., 2014]. Gene-set enrichment analysis (<code>GSEA</code>) was performed using <a href="https://github.com/alserglab/fgsea">fgsea</a> (v1.31.6) [Korotkevich et al., 2016] and <a href="https://guangchuangyu.github.io/software/clusterProfiler/">clusterProfiler</a> (v4.12.6) [Wu et al., 2021] approaches using the following databases: <a href="https://www.gsea-msigdb.org/gsea/msigdb">MSigDB</a> [Castanza et al., 2023]. Mapping gene identifiers between different coding systems was performed by <a href="https://github.com/grimbough/biomaRt">biomaRt</a> package. To perform the <code>GSEA</code> analysis using immune cells markers, a <a href="http://www.bio-bigdata.center/">CellMarker 2.0</a> database were used [Hu et al., 2023]. Gene set variation analysis <a href="https://github.com/rcastelo/GSVA">GSVA</a> was used for estimating immune cell type enrichment within samples [Hänzelmann et al., 2013]. Co-expression analysis was performed using <a href="https://github.com/almeidasilvaf/BioNERO">BioNERO</a> (v1.12.0) [Almeida-Silva et al., 2022] with signed hybrid network type and Pearson correlation. Correction of expression data by differentiation method batch was performed using <code>removeBatchEffect</code> function from <a href="https://kasperdanielhansen.github.io/genbioconductor/html/limma.html">limma</a> package [Ritchie et al., 2015]. Over-representation analysis for functional analysis of co-expressed gene modules linked to experimental groups using <code>clusterProfiler</code> package with <code>MSigDB</code>, <a href="https://www.genome.jp/kegg/">KEGG</a> [Kanehisa et al., 2025], <a href="https://reactome.org/">Reactome</a> [Milacic et al., 2024] and <a href="https://www.wikipathways.org/">WikiPathways</a> [Agrawal et al., 2024]. <a href="https://string-db.org/">STRING</a> database and <a href="https://www.bioconductor.org/packages/release/bioc/html/STRINGdb.html">STRINGdb</a> Bioconductor package were used for construction of interaction networks linked to genes included to co-expressed gene modules [Szklarczyk et al., 2023]. For visualization of obtained results <a href="https://github.com/raivokolde/pheatmap">pheatmap</a> (v1.0.12), <a href="https://ggplot2.tidyverse.org/%5D">ggplot2</a> (v3.5.1) and <a href="https://github.com/kevinblighe/EnhancedVolcano">EnhancedVolcano</a> packages were used. Data analysis were implemented in <a href="https://www.r-project.org/">R</a> (v4.4.2).
+</p>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">flowchart LR
+    A[("Raw reads")] --&gt; B{"fastp"}
+    B --&gt; C{"FastQC"} &amp; E{"STAR"}
+    C --&gt; D{"MultiQC"}
+    E --&gt; F{"HTSeq"}
+    F --&gt; G[("Count table")]
+    G --&gt; I{"DESeq2"} &amp; Z{"limma"} &amp; W{"PCA"}
+    Z --&gt; H{"PCA"} &amp; J{"BioNERO"}
+    I --&gt; K{"GSEA"}
+    J --&gt; L{"ORA"} &amp; N{"STRING"}
+    G --&gt; V{"GSVA"}
+
+     A:::Aqua
+     B:::Aqua
+     B:::Pine
+     C:::Pine
+     E:::Pine
+     D:::Pine
+     F:::Pine
+     G:::Aqua
+     I:::Pine
+     Z:::Pine
+     W:::Pine
+     H:::Pine
+     J:::Pine
+     K:::Pine
+     L:::Pine
+     N:::Pine
+     V:::Pine
+    classDef Aqua stroke-width:1px, stroke-dasharray:none, stroke:#46EDC8, fill:#DEFFF8, color:#378E7A
+    classDef Pine stroke-width:1px, stroke-dasharray:none, stroke:#254336, fill:#27654A, color:#FFFFFF
+</pre>
+</div>
+<p></p></figure><p></p>
+</div>
+</div>
+</div>
+<section id="references" class="level2">
+<h2 class="anchored" data-anchor-id="references">References</h2>
+<ol type="1">
+<li><p><a href="https://academic.oup.com/bioinformatics/article/32/19/3047/2196507">Ewels, Philip, et al.&nbsp;“MultiQC: summarize analysis results for multiple tools and samples in a single report.” Bioinformatics 32.19 (2016): 3047-3048.</a></p></li>
+<li><p><a href="https://academic.oup.com/bioinformatics/article/34/17/i884/5093234">Chen, Shifu, et al.&nbsp;“fastp: an ultra-fast all-in-one FASTQ preprocessor.” Bioinformatics 34.17 (2018): i884-i890.</a></p></li>
+<li><p><a href="https://academic.oup.com/bioinformatics/article/29/1/15/272537">Dobin, Alexander, et al.&nbsp;“STAR: ultrafast universal RNA-seq aligner.” Bioinformatics 29.1 (2013): 15-21.</a></p></li>
+<li><p><a href="https://academic.oup.com/bioinformatics/article/31/2/166/2366196">Anders, Simon, Paul Theodor Pyl, and Wolfgang Huber. “HTSeq—a Python framework to work with high-throughput sequencing data.” Bioinformatics 31.2 (2015): 166-169</a></p></li>
+<li><p><a href="https://genomebiology.biomedcentral.com/articles/10.1186/s13059-014-0550-8">Love, Michael I., Wolfgang Huber, and Simon Anders. “Moderated estimation of fold change and dispersion for RNA-seq data with DESeq2.” Genome biology 15 (2014): 1-21.</a></p></li>
+<li><p><a href="https://academic.oup.com/nar/article/51/D1/D870/6775381">Hu, Congxue, et al.&nbsp;“CellMarker 2.0: an updated database of manually curated cell markers in human/mouse and web tools based on scRNA-seq data.” Nucleic acids research 51.D1 (2023): D870-D876.</a></p></li>
+<li><p><a href="https://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-14-7">Hänzelmann, Sonja, Robert Castelo, and Justin Guinney. “GSVA: gene set variation analysis for microarray and RNA-seq data.” BMC bioinformatics 14 (2013): 1-15.</a></p></li>
+<li><p><a href="https://link.springer.com/article/10.1007/s10142-021-00821-9">Almeida-Silva, Fabricio, and Thiago M. Venancio. “BioNERO: an all-in-one R/Bioconductor package for comprehensive and easy biological network reconstruction.” Functional &amp; Integrative Genomics 22.1 (2022): 131-136.</a></p></li>
+<li><p><a href="https://academic.oup.com/nar/article/43/7/e47/2414268">Ritchie, Matthew E., et al.&nbsp;“limma powers differential expression analyses for RNA-sequencing and microarray studies.” Nucleic acids research 43.7 (2015): e47-e47.</a></p></li>
+<li><p><a href="https://academic.oup.com/nar/article/53/D1/D672/7824602">Kanehisa, Minoru, et al.&nbsp;“KEGG: biological systems database as a model of the real world.” Nucleic Acids Research 53.D1 (2025): D672-D677.</a></p></li>
+<li><p><a href="https://academic.oup.com/nar/article/52/D1/D672/7369850">Milacic, Marija, et al.&nbsp;“The reactome pathway knowledgebase 2024.” Nucleic acids research 52.D1 (2024): D672-D678.</a></p></li>
+<li><p><a href="https://academic.oup.com/nar/article/52/D1/D679/7369835">Agrawal, Ayushi, et al.&nbsp;“WikiPathways 2024: next generation pathway database.” Nucleic acids research 52.D1 (2024): D679-D689.</a></p></li>
+<li><p><a href="https://academic.oup.com/nar/article/51/D1/D638/6825349">Szklarczyk, Damian, et al.&nbsp;“The STRING database in 2023: protein–protein association networks and functional enrichment analyses for any sequenced genome of interest.” Nucleic acids research 51.D1 (2023): D638-D646.</a></p></li>
+</ol>
+</section>
+<section id="database-links" class="level2">
+<h2 class="anchored" data-anchor-id="database-links">Database links</h2>
+<p>GENCODE: <a href="https://www.gencodegenes.org/mouse/" class="uri">https://www.gencodegenes.org/mouse/</a></p>
+<p>MSigDB: <a href="https://www.gsea-msigdb.org/gsea/msigdb" class="uri">https://www.gsea-msigdb.org/gsea/msigdb</a></p>
+<p>KEGG: <a href="https://www.genome.jp/kegg/" class="uri">https://www.genome.jp/kegg/</a></p>
+<p>Reactome: <a href="https://reactome.org/" class="uri">https://reactome.org/</a></p>
+<p>Wiki pathways: <a href="https://www.wikipathways.org/" class="uri">https://www.wikipathways.org/</a></p>
+<p>CellMarker: <a href="http://www.bio-bigdata.center/" class="uri">http://www.bio-bigdata.center/</a></p>
+<p>STRING: <a href="https://string-db.org/" class="uri">https://string-db.org/</a></p>
+</section>
+<section id="tool-links" class="level2">
+<h2 class="anchored" data-anchor-id="tool-links">Tool links</h2>
+<p>FastQC: <a href="https://github.com/s-andrews/FastQC" class="uri">https://github.com/s-andrews/FastQC</a></p>
+<p>MultiQC: <a href="https://github.com/MultiQC/MultiQC" class="uri">https://github.com/MultiQC/MultiQC</a></p>
+<p>fastp: <a href="https://github.com/OpenGene/fastp" class="uri">https://github.com/OpenGene/fastp</a></p>
+<p>STAR: <a href="https://github.com/alexdobin/STAR" class="uri">https://github.com/alexdobin/STAR</a></p>
+<p>HTSeq: <a href="https://github.com/simon-anders/htseq" class="uri">https://github.com/simon-anders/htseq</a></p>
+<p>DESeq2: <a href="https://github.com/thelovelab/DESeq2" class="uri">https://github.com/thelovelab/DESeq2</a></p>
+<p>fgsea: <a href="https://github.com/alserglab/fgsea" class="uri">https://github.com/alserglab/fgsea</a></p>
+<p>clusterProfiler: <a href="https://guangchuangyu.github.io/software/clusterProfiler/" class="uri">https://guangchuangyu.github.io/software/clusterProfiler/</a></p>
+<p>GSVA: <a href="https://bioconductor.org/packages/release/bioc/html/GSVA.html" class="uri">https://bioconductor.org/packages/release/bioc/html/GSVA.html</a></p>
+<p>biomaRt: <a href="https://github.com/grimbough/biomaRt" class="uri">https://github.com/grimbough/biomaRt</a></p>
+<p>BioNERO: <a href="https://github.com/almeidasilvaf/BioNERO" class="uri">https://github.com/almeidasilvaf/BioNERO</a></p>
+<p>limma: <a href="https://bioconductor.org/packages/release/bioc/html/limma.html" class="uri">https://bioconductor.org/packages/release/bioc/html/limma.html</a></p>
+<p>STRINGdb: <a href="https://www.bioconductor.org/packages/release/bioc/html/STRINGdb.html" class="uri">https://www.bioconductor.org/packages/release/bioc/html/STRINGdb.html</a></p>
+<p>pheatmap: <a href="https://github.com/raivokolde/pheatmap" class="uri">https://github.com/raivokolde/pheatmap</a></p>
+<p>ggplot2: <a href="https://github.com/tidyverse/ggplot2" class="uri">https://github.com/tidyverse/ggplot2</a></p>
+<p>EnhancedVolcano: <a href="https://github.com/kevinblighe/EnhancedVolcano" class="uri">https://github.com/kevinblighe/EnhancedVolcano</a></p>
+<p>R: <a href="https://www.r-project.org/" class="uri">https://www.r-project.org/</a></p>
+</section>
+</section>
+<section id="results" class="level1">
+<h1>Results</h1>
+<section id="samples-and-experimental-groups" class="level2">
+<h2 class="anchored" data-anchor-id="samples-and-experimental-groups">Samples and experimental groups</h2>
+<p style="text-align: justify;">
+A total of 14 transcriptomic samples corresponding to the following three experimental groups: melanoma (n=6) and melanoma with <em>Bifidobacterium adolescentis</em> 150 supplement (n=6) and melanoma with <em>Lacticaseibacillus rhamnosus</em> K32 supplement (n=2) were added to the analysis (see Table 1). The experiment was performed in two replicates: first included only melanoma and melanoma with <em>B. adolescentis</em> supplement groups; second included all three experimental groups. To simplify the description of the results, we adopted the following codings:
+</p><p>
+</p><p>Experimental groups:</p>
+<ol type="1">
+<li><p>Melanoma –&gt; <code>M</code></p></li>
+<li><p>Melanoma with <em>B. adolescentis</em> supplement –&gt; <code>M_BIF</code></p></li>
+<li><p>Melanoma with <em>L. rhamnosus</em> supplement –&gt; <code>M_BIF</code></p></li>
+</ol>
+<p>Experimental batch:</p>
+<ol type="1">
+<li><p>First experiment –&gt; <code>batch_1</code></p></li>
+<li><p>Second experiment –&gt; <code>batch_2</code></p></li>
+</ol>
+<div class="cell">
+<div class="cell-output-display">
+<div class="datatables html-widget html-fill-item" id="htmlwidget-ea88496fcbb647b5a6fe" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-ea88496fcbb647b5a6fe">{"x":{"style":"bootstrap5","filter":"none","vertical":false,"extensions":["Buttons"],"caption":"<caption>Table 1. Samples metadata.<\/caption>","data":[["1","2","3","4","5","6","7","8","9","10","11","12","13","14"],["OE2_1","OE2_2","OE3_2","OE3_3","OE4_1","OE4_2","OB2_1","OB2_2","OB3_1","OB3_2","OB4_1","OB4_2","OB5_1","OB5_2"],["M","M","M_LAC","M_LAC","M_BIF","M_BIF","M","M","M","M","M_BIF","M_BIF","M_BIF","M_BIF"],["1","1","1","1","1","1","2","2","2","2","2","2","2","2"]],"container":"<table class=\"table table-striped table-hover row-border order-column display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>sampleid<\/th>\n      <th>group<\/th>\n      <th>batch<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"dom":"lBfrtip","buttons":["csv","excel"],"columnDefs":[{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"sampleid","targets":1},{"name":"group","targets":2},{"name":"batch","targets":3}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+</div>
+</div>
+</section>
+<section id="quality-control" class="level2">
+<h2 class="anchored" data-anchor-id="quality-control">Quality control</h2>
+<section id="miltiqc-report" class="level4">
+<h4 class="anchored" data-anchor-id="miltiqc-report">MiltiQC report</h4>
+<p><a href="multiqc_report.html">MultiQC full report</a></p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="fastqc-status-check-heatmap.svg" class="img-fluid figure-img"></p>
+<figcaption>Figure 1. Summary MultiQC report.</figcaption>
+</figure>
+</div>
+</section>
+<section id="reads-filtering-by-quality-statistic" class="level4">
+<h4 class="anchored" data-anchor-id="reads-filtering-by-quality-statistic">Reads filtering by quality statistic</h4>
+<div class="cell">
+<div class="cell-output-display">
+<div class="datatables html-widget html-fill-item" id="htmlwidget-d2570e8ea9c649a1170c" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-d2570e8ea9c649a1170c">{"x":{"style":"bootstrap5","filter":"none","vertical":false,"extensions":["Buttons"],"caption":"<caption>Table 2. Reads filtering statistic.<\/caption>","data":[["1","2","3","4","5","6","7","8","9","10","11","12","13","14"],["OB2_1","OB2_2","OB3_1","OB3_2","OB4_1","OB4_2","OB5_1","OB5_2","OE2_1","OE2_2","OE3_2","OE3_3","OE4_1","OE4_2"],["M","M","M","M","M_BIF","M_BIF","M_BIF","M_BIF","M","M","M_LAC","M_LAC","M_BIF","M_BIF"],[23.11,20.57,20.8,20.32,20.07,19.46,20.71,19.74,8.890000000000001,10.4,10.47,12.44,12.16,10.31],[20.88,18.73,18.97,17.81,18.39,17.43,18.47,17.14,6.62,8.130000000000001,7.67,9.880000000000001,9.880000000000001,8.08],[9.609999999999999,8.94,8.789999999999999,12.36,8.380000000000001,10.46,10.82,13.16,25.58,21.85,26.7,20.63,18.76,21.57]],"container":"<table class=\"table table-striped table-hover row-border order-column display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>sampleid<\/th>\n      <th>group<\/th>\n      <th>raw<\/th>\n      <th>filtered<\/th>\n      <th>%_filtered<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"dom":"lBfrtip","buttons":["csv","excel"],"columnDefs":[{"className":"dt-right","targets":[3,4,5]},{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"sampleid","targets":1},{"name":"group","targets":2},{"name":"raw","targets":3},{"name":"filtered","targets":4},{"name":"%_filtered","targets":5}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+</div>
+</div>
+</section>
+<section id="mapping-reads-to-reference-counts" class="level4">
+<h4 class="anchored" data-anchor-id="mapping-reads-to-reference-counts">Mapping reads to reference counts</h4>
+<div class="cell">
+<div class="cell-output cell-output-stderr">
+<pre><code>Saving 5 x 7 in image</code></pre>
+</div>
+<div class="cell-output-display">
+<button class="btn btn-primary" onclick="
+    async function downloadFile(event) {
+      event.preventDefault();
+      try {
+        const response = await fetch('data:application/pdf;base64,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ZG90bGVzc2kgL2dyYXZlIC9hY3V0ZSAvY2lyY3VtZmxleCAvdGlsZGUgL21hY3JvbiAvYnJldmUgL2RvdGFjY2VudAovZGllcmVzaXMgLy5ub3RkZWYgL3JpbmcgL2NlZGlsbGEgLy5ub3RkZWYgL2h1bmdhcnVtbGF1dCAvb2dvbmVrIC9jYXJvbiAvc3BhY2VdCj4+CmVuZG9iagoxMCAwIG9iago8PCAvVHlwZSAvRm9udCAvU3VidHlwZSAvVHlwZTEgL05hbWUgL0YyIC9CYXNlRm9udCAvSGVsdmV0aWNhCi9FbmNvZGluZyA5IDAgUiA+PgplbmRvYmoKeHJlZgowIDExCjAwMDAwMDAwMDAgNjU1MzUgZiAKMDAwMDAwMDAyMSAwMDAwMCBuIAowMDAwMDAwMTYzIDAwMDAwIG4gCjAwMDAwMDE0NzggMDAwMDAgbiAKMDAwMDAwMTU2MSAwMDAwMCBuIAowMDAwMDAxNjczIDAwMDAwIG4gCjAwMDAwMDE3MDYgMDAwMDAgbiAKMDAwMDAwMDIxMiAwMDAwMCBuIAowMDAwMDAwMjkyIDAwMDAwIG4gCjAwMDAwMDQ0MDEgMDAwMDAgbiAKMDAwMDAwNDY1OCAwMDAwMCBuIAp0cmFpbGVyCjw8IC9TaXplIDExIC9JbmZvIDEgMCBSIC9Sb290IDIgMCBSID4+CnN0YXJ0eHJlZgo0NzU1CiUlRU9GCg==');
+        if (!response.ok) throw new Error('Network response failed');
+        const blob = await response.blob();
+        const blobUrl = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = blobUrl;
+        a.download = 'counts_plot.pdf';
+        a.style.display = 'none';
+        document.body.appendChild(a);
+        a.dispatchEvent(new MouseEvent('click'));
+        document.body.removeChild(a);
+        setTimeout(() => {
+          window.URL.revokeObjectURL(blobUrl);
+        }, 100);
+        return false;
+      } catch (error) {
+        console.error('Download failed:', error);
+        alert('Download failed. Please try again.');
+      }
+    }
+    downloadFile(event);
+  "><i class="fa fa-save"></i> PDF</button>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="REPORT_files/figure-html/HTSeq%20count%20plot%20draw-1.png" class="img-fluid figure-img" width="480"></p>
+<figcaption>Figure 3. Barplot denoted HTSeq counts per experimantal sample.</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="anova" class="level4">
+<h4 class="anchored" data-anchor-id="anova">ANOVA</h4>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>            Df Sum Sq Mean Sq F value  Pr(&gt;F)    
+batch        1  168.0  168.00  29.735 0.00028 ***
+group        2    3.0    1.50   0.265 0.77207    
+Residuals   10   56.5    5.65                    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+</div>
+</section>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
