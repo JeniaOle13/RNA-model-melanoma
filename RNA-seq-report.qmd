@@ -1,0 +1,1936 @@
+---
+title: "Bulk RNA-seq analysis of mice model melanoma"
+format: html
+editor: visual
+---
+
+# Material and methods
+
+## RNA expraction and sequencing
+
+<p style="text-align: justify;">
+Total RNA was isolated using the RNeasy Plant Mini Kit (QIAGEN, Germany) following the manufacturer's protocol. To eliminate potential DNA contamination, the RNA was further treated with the TURBO DNA-free Kit (Thermo Fisher Scientific, USA) in a 50 µL reaction volume. Purification was performed using Agencourt RNA Clean XP beads (Beckman Coulter, USA). RNA concentration and integrity were evaluated using the Quantitative RiboGreen RNA Assay (Thermo Fisher Scientific) and the RNA 6000 Pico Kit (Agilent Technologies, USA). RNA libraries were constructed using the NEBNext Poly(A) mRNA Magnetic Isolation Module followed by the KAPA RNA Hyper Kit (Roche, Switzerland), adhering to the manufacturer's instructions. Final library purification was carried out with KAPA HyperPure Beads (Roche, Switzerland). Library fragment size distribution and purity were assessed using the High Sensitivity DNA Kit (Agilent Technologies). Quantification was performed with the Quant-iT DNA Assay Kit, High Sensitivity (Thermo Fisher Scientific). Equimolar pools of each library (10 pM) were subjected to high-throughput sequencing on the Illumina HiSeq 2500 platform using paired-end reads (2 × 100 bp) with a 2% PhiX spike-in control.
+<p>
+
+## Bioinformatics analysis
+
+<p style="text-align: justify;">
+Initial quality assessment of murine transcriptomic data was performed using FastQC (v0.12.1), with aggregated reports generated via MultiQC (v1.27.1) \[Ewels et al., 2016\]. Raw reads were processed using fastp (v0.23.4) to remove low-quality sequences \[Chen et al., 2018\]. Read alignment was subsequently conducted with STAR (v2.7.11) \[Dobin et al., 2013\] against the *Mus musculus* reference genome (GENCODE GRCm39.vM36) using the annotation file gencode.vM36.chr_patch_hapl_scaff.annotation.gtf, followed by gene-level quantification with HTSeq-count (v2.0.5) \[Anders et al., 2015\]. Differential gene expression analysis between experimental groups was performed using DESeq2 (v1.44.0) \[Love et al., 2014\]. For comprehensive functional interpretation, we implemented gene-set enrichment analysis (GSEA) through fgsea (v1.31.6) \[Korotkevich et al., 2016\] and clusterProfiler (v4.12.6) \[Wu et al., 2021\], utilizing both the MSigDB \[Castanza et al., 2023\] and CellMarker 2.0 \[Hu et al., 2023\] databases. Immune cell enrichment patterns were further assessed via Gene Set Variation Analysis (GSVA) \[Hänzelmann et al., 2013\]. Immune cell populations were deconvoluted from tumor transcriptome profiles using the mMCP-counter algorithm \[Petitprez et al., 2020\]. Co-expression network analysis was performed using BioNERO (v1.12.0) \[Almeida-Silva et al., 2022\], employing signed hybrid network topology with Pearson correlation metrics. Potential batch effects were addressed using the removeBatchEffect function from the limma package \[Ritchie et al., 2015\]. Functional annotation of co-expressed gene modules included over-representation analysis against multiple pathway databases including MSigDB, KEGG \[Kanehisa et al., 2025\], Reactome \[Milacic et al., 2024\], and WikiPathways \[Agrawal et al., 2024\]. Protein-protein interaction networks were reconstructed using the STRING database v12.0 through the STRINGdb (v2.16.4) Bioconductor package \[Szklarczyk et al., 2023\]. Visualization of analytical results was achieved using a combination of pheatmap (v1.0.12) for heatmap generation, ggplot2 (v3.5.1) for general plotting, and EnhancedVolcano (v1.22.0) for specialized visualization of differential expression results. The entire analytical workflow was implemented in R (v4.4.2).
+</p>
+
+```{mermaid}
+flowchart LR
+    A[("Raw reads")] --> B{"fastp"}
+    B --> C{"FastQC"} & E{"STAR"}
+    C --> D{"MultiQC"}
+    E --> F{"HTSeq"}
+    F --> G[("Count table")]
+    G --> I{"DESeq2"} & Z{"limma"} & W{"PCA"}
+    Z --> H{"PCA"} & J{"BioNERO"}
+    I --> K{"GSEA"}
+    J --> L{"ORA"} & N{"STRING"}
+    G --> V{"GSVA"}
+
+     A:::Aqua
+     B:::Aqua
+     B:::Pine
+     C:::Pine
+     E:::Pine
+     D:::Pine
+     F:::Pine
+     G:::Aqua
+     I:::Pine
+     Z:::Pine
+     W:::Pine
+     H:::Pine
+     J:::Pine
+     K:::Pine
+     L:::Pine
+     N:::Pine
+     V:::Pine
+    classDef Aqua stroke-width:1px, stroke-dasharray:none, stroke:#46EDC8, fill:#DEFFF8, color:#378E7A
+    classDef Pine stroke-width:1px, stroke-dasharray:none, stroke:#254336, fill:#27654A, color:#FFFFFF
+```
+
+## References
+
+1)  [Ewels, Philip, et al. "MultiQC: summarize analysis results for multiple tools and samples in a single report." Bioinformatics 32.19 (2016): 3047-3048.](https://academic.oup.com/bioinformatics/article/32/19/3047/2196507)
+
+2)  [Chen, Shifu, et al. "fastp: an ultra-fast all-in-one FASTQ preprocessor." Bioinformatics 34.17 (2018): i884-i890.](https://academic.oup.com/bioinformatics/article/34/17/i884/5093234)
+
+3)  [Dobin, Alexander, et al. "STAR: ultrafast universal RNA-seq aligner." Bioinformatics 29.1 (2013): 15-21.](https://academic.oup.com/bioinformatics/article/29/1/15/272537)
+
+4)  [Anders, Simon, Paul Theodor Pyl, and Wolfgang Huber. "HTSeq—a Python framework to work with high-throughput sequencing data." Bioinformatics 31.2 (2015): 166-169](https://academic.oup.com/bioinformatics/article/31/2/166/2366196)
+
+5)  [Love, Michael I., Wolfgang Huber, and Simon Anders. "Moderated estimation of fold change and dispersion for RNA-seq data with DESeq2." Genome biology 15 (2014): 1-21.](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-014-0550-8)
+
+6)  [Hu, Congxue, et al. "CellMarker 2.0: an updated database of manually curated cell markers in human/mouse and web tools based on scRNA-seq data." Nucleic acids research 51.D1 (2023): D870-D876.](https://academic.oup.com/nar/article/51/D1/D870/6775381)
+
+7)  [Hänzelmann, Sonja, Robert Castelo, and Justin Guinney. "GSVA: gene set variation analysis for microarray and RNA-seq data." BMC bioinformatics 14 (2013): 1-15.](https://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-14-7)
+
+8)  [Petitprez, Florent, et al. "The murine Microenvironment Cell Population counter method to estimate abundance of tissue-infiltrating immune and stromal cell populations in murine samples using gene expression." Genome medicine 12 (2020): 1-15.](https://genomemedicine.biomedcentral.com/articles/10.1186/s13073-020-00783-w)
+
+9)  [Almeida-Silva, Fabricio, and Thiago M. Venancio. "BioNERO: an all-in-one R/Bioconductor package for comprehensive and easy biological network reconstruction." Functional & Integrative Genomics 22.1 (2022): 131-136.](https://link.springer.com/article/10.1007/s10142-021-00821-9)
+
+10) [Ritchie, Matthew E., et al. "limma powers differential expression analyses for RNA-sequencing and microarray studies." Nucleic acids research 43.7 (2015): e47-e47.](https://academic.oup.com/nar/article/43/7/e47/2414268)
+
+11) [Kanehisa, Minoru, et al. "KEGG: biological systems database as a model of the real world." Nucleic Acids Research 53.D1 (2025): D672-D677.](https://academic.oup.com/nar/article/53/D1/D672/7824602)
+
+12) [Milacic, Marija, et al. "The reactome pathway knowledgebase 2024." Nucleic acids research 52.D1 (2024): D672-D678.](https://academic.oup.com/nar/article/52/D1/D672/7369850)
+
+13) [Agrawal, Ayushi, et al. "WikiPathways 2024: next generation pathway database." Nucleic acids research 52.D1 (2024): D679-D689.](https://academic.oup.com/nar/article/52/D1/D679/7369835)
+
+14) [Szklarczyk, Damian, et al. "The STRING database in 2023: protein–protein association networks and functional enrichment analyses for any sequenced genome of interest." Nucleic acids research 51.D1 (2023): D638-D646.](https://academic.oup.com/nar/article/51/D1/D638/6825349)
+
+## DNA extraction and sequencing
+
+[RNeasy Plant Mini Kit (QIAGEN, German)](https://www.qiagen.com/us/products/discovery-and-translational-research/dna-rna-purification/rna-purification/total-rna/rneasy-plant-mini-kit)
+
+[TURBO DNA-free kit (Thermo Fisher Scientific, USA)](https://www.thermofisher.com/order/catalog/product/AM1907)
+
+[Agencourt RNA Clean XP (Beckman Coulter, Brea, USA)](https://www.beckman.com/reagents/genomic/cleanup-and-size-selection/rna-and-cdna)
+
+[Quantitative RiboGreen RNA assay (Thermo Fisher Scientific)](https://www.thermofisher.com/order/catalog/product/R11490)
+
+[RNA 6000 Pico Kit (Agilent Technologies, Santa Clara, CA, USA)](https://klad.skygen.com/catalog/nabor-reagentov-dlya-analiza-rnk-agilent-rna-6000-pico-kit-275-obraztsov-art-5067-1513-agilent-techn/)
+
+[NEBNext Poly(A) mRNA Magnetic Isolation Module](https://www.neb.com/en/products/e7490-nebnext-polya-mrna-magnetic-isolation-module?srsltid=AfmBOoq8wIoCU8SRn9NJcddrJdZwqpVMqaDUsTRbPa0hajUpjT4arv_S)
+
+[KAPA RNA Hyper Kit (Roche, Switzerland)](https://rochesequencingstore.com/catalog/kapa-rna-hyperprep-kit/)
+
+[KAPPA HyperPure beads (Roche, Switzerland)](https://sequencing.roche.com/global/en/products/group/kapa-hyperpure-beads.html)
+
+[Highly Sensitive DNA Kit (Agilent Technologies)](https://agilent-lab.ru/Nabor-DNK-visokoy-chuvstvitelnosti-Agilent_5067-4626)
+
+[Quant-iT DNA Assay Kit, High Sensitivity (Thermo Fisher Scientific)](https://www.thermofisher.com/order/catalog/product/Q33120)
+
+[Illumina HiSeq 2500](https://support.illumina.com/sequencing/sequencing_instruments/hiseq_2500.html)
+
+## Databases
+
+GENCODE: <https://www.gencodegenes.org/mouse/>
+
+MSigDB: <https://www.gsea-msigdb.org/gsea/msigdb>
+
+KEGG: <https://www.genome.jp/kegg/>
+
+Reactome: <https://reactome.org/>
+
+Wiki pathways: <https://www.wikipathways.org/>
+
+CellMarker 2.0: <http://www.bio-bigdata.center/>
+
+STRING: <https://string-db.org/>
+
+## Tools
+
+FastQC: <https://github.com/s-andrews/FastQC>
+
+MultiQC: <https://github.com/MultiQC/MultiQC>
+
+fastp: <https://github.com/OpenGene/fastp>
+
+STAR: <https://github.com/alexdobin/STAR>
+
+HTSeq: <https://github.com/simon-anders/htseq>
+
+DESeq2: <https://github.com/thelovelab/DESeq2>
+
+fgsea: <https://github.com/alserglab/fgsea>
+
+clusterProfiler: <https://guangchuangyu.github.io/software/clusterProfiler/>
+
+GSVA: <https://bioconductor.org/packages/release/bioc/html/GSVA.html>
+
+mMCP-counter: <https://github.com/cit-bioinfo/mMCP-counter>
+
+biomaRt: <https://github.com/grimbough/biomaRt>
+
+BioNERO: <https://github.com/almeidasilvaf/BioNERO>
+
+limma: <https://bioconductor.org/packages/release/bioc/html/limma.html>
+
+STRINGdb: <https://www.bioconductor.org/packages/release/bioc/html/STRINGdb.html>
+
+pheatmap: <https://github.com/raivokolde/pheatmap>
+
+ggplot2: <https://github.com/tidyverse/ggplot2>
+
+EnhancedVolcano: <https://github.com/kevinblighe/EnhancedVolcano>
+
+R: <https://www.r-project.org/>
+
+## Raw data
+
+PRJNA1214537: <https://www.ncbi.nlm.nih.gov/bioproject/PRJNA1214537/>
+
+# Results
+
+```{r}
+#| message: false
+#| warning: false
+#| include: false
+
+library(vegan)
+library(fgsea)
+library(limma)
+library(stringr)
+library(BioNERO)
+library(DESeq2)
+library(tidyverse)
+library(factoextra)
+library(clusterProfiler)
+
+library(ggpubr)
+library(ggplot2)
+library(pheatmap)
+library(RColorBrewer)
+library(ComplexHeatmap)
+library(EnhancedVolcano)
+
+library(DOSE)
+library(msigdbr)
+library(msigdbdf)
+library(biomaRt)
+library(ReactomePA)
+library(org.Mm.eg.db)
+library(AnnotationDbi)
+library(AnnotationHub)
+library(GSVA)
+library(STRINGdb)
+library(immunedeconv)
+
+library(DT)
+library(downloadthis)
+
+mypal <- brewer.pal(8, "Set1")
+
+set.seed(10)
+```
+
+```{r}
+#| message: false
+#| warning: false
+#| include: false
+
+meta_data <- read.csv("data/metadata.tsv", sep = "\t")
+meta_data$group <- as.factor(meta_data$group)
+meta_data$batch <- as.factor(meta_data$batch)
+meta_data$File <- meta_data$sampleid
+meta_data <- meta_data[c(1,4,2,3)]
+meta_data$File <- paste0(meta_data$File, ".counts")
+
+reads.counts <- read.csv("data/counts.tsv", sep = "\t")
+colnames(reads.counts)[3] <- "filtered"
+colnames(reads.counts)[4] <- "%_filtered"
+reads.counts <- merge(meta_data[c(1,3)], reads.counts, by = 1)
+
+ddsHTSeq <- DESeqDataSetFromHTSeqCount(sampleTable = meta_data,
+                                       directory = "data/htseq/",
+                                       design= ~ 0 + group + batch)
+rownames(ddsHTSeq) <- sapply(str_split(rownames(ddsHTSeq), "\\."), function(x) x[1])
+
+ENTREZID <- mapIds(org.Mm.eg.db, keys = rownames(ddsHTSeq), keytype="ENSEMBL", column = "ENTREZID")
+ENTREZID <- as.data.frame(ENTREZID)
+ENTREZID <- cbind(rownames(ENTREZID), ENTREZID)
+colnames(ENTREZID)[1] <- "ENSEMBL"
+
+SYMBOL <- mapIds(org.Mm.eg.db, keys = rownames(ddsHTSeq), keytype="ENSEMBL", column = "SYMBOL")
+SYMBOL <- as.data.frame(SYMBOL)
+SYMBOL <- cbind(rownames(SYMBOL), SYMBOL)
+colnames(SYMBOL)[1] <- "ENSEMBL"
+
+convertID <- merge(SYMBOL, ENTREZID)
+```
+
+## Experimental Design and Sample Overview
+
+<p style="text-align: justify;">
+The analysis included a total of 14 transcriptomic samples representing three experimental groups: 1) melanoma (n=6); 2) melanoma supplemented with *Bifidobacterium adolescentis* 150 (n=6); and 3) melanoma supplemented with *Lacticaseibacillus rhamnosus* K32 (n=2) (Table 1). The study was conducted in two sequential replicates: the first replicate comprised only the melanoma and *B. adolescentis*-supplemented groups (n=8), while the second replicate incorporated all three experimental conditions (n=6). The genomes of the bacteria used in this experiment are available at the following links [GCF_001010915.1](https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_001010915.1/) and [GCF_000735255.1](https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_000735255.1/). For clarity in data interpretation, we introduced the following standardized codings:
+<p>
+
+Experimental groups:
+
+1)  Melanoma --\> `M`
+
+2)  Melanoma with *B. adolescentis* supplement --\> `M_BIF`
+
+3)  Melanoma with *L. rhamnosus* supplement --\> `M_LAC`
+
+Experimental batch:
+
+1)  First experiment --\> `batch_1`
+
+2)  Second experiment --\> `batch_2`
+
+```{r}
+#| echo: false
+meta_data_d <- meta_data[order(meta_data$group),]
+meta_data_d <- meta_data_d[order(meta_data_d$batch),]
+meta_data_d$batch <- paste0("batch_", meta_data_d$batch)
+
+datatable(meta_data_d[-2], 
+          caption = "Table 1. Samples metadata.",
+          style = "bootstrap5", 
+          extensions = 'Buttons', 
+          options = list(dom = 'lBfrtip',
+                         buttons = c('csv', 'excel')))
+```
+
+## Quality control
+
+<p style="text-align: justify;">
+Following quality filtering with `fastp`, aggregated quality metrics were compiled using `MultiQC` to summarize the `FastQC` reports. As illustrated in Figure 1, the `MultiQC` quality profile indicates that the sequencing data maintained adequate overall quality. Post-filtering, approximately 198 million reads (mean ± SD: 14 ± 5 mln reads per sample) were retained for downstream analysis, with an average of 16 ± 7% of reads per sample removed during quality control (see Table 2 for detailed filtering statistics). Transcript abundance was quantified using the `HTSeq` tool. Figure 3 displays the distribution of HTSeq counts across all experimental samples. While no statistically significant differences in read counts were observed between experimental groups, batch effects significantly influenced read distribution (Figure 3). The resulting gene expression count matrix was normalized using the [median of ratios method](https://hbctraining.github.io/DGE_workshop/lessons/02_DGE_count_normalization.html), with normalized values presented in Table 4.
+<p>
+
+#### MiltiQC report
+
+[MultiQC full report](figures/multiqc_report.html)
+
+![Figure 1. Summary MultiQC report.](figures/fastqc-status-check-heatmap.svg)
+
+#### Reads filtering by quality statistic
+
+```{r}
+#| label: fastp filtered table
+#| echo: false
+datatable(reads.counts, 
+          caption = "Table 2. Reads filtering statistic.",
+          style = "bootstrap5", 
+          extensions = 'Buttons', 
+          options = list(dom = 'lBfrtip',
+                         buttons = c('csv', 'excel')))
+```
+
+#### Mapping reads to reference counts
+
+```{r}
+#| echo: false
+
+counts.df <- as.data.frame(round(colSums(counts(ddsHTSeq))/1000000, 2))
+counts.df <- cbind(sampleid = rownames(counts.df), counts.df)
+colnames(counts.df)[2] <- "counts"
+
+counts.df <- merge(meta_data[-2], counts.df, by = 1)
+
+counts_plot <- ggplot(counts.df, aes(counts, reorder(sampleid, counts), fill = group))+
+    geom_bar(stat = "identity")+
+    theme_bw()+
+    scale_fill_brewer(palette = "Set1")+
+    xlab("Reads counts, mln")+
+    ylab("Sample ID")+
+    theme(legend.position = "bottom")
+```
+
+```{r fig.height=7, fig.width=5}
+#| label: HTSeq count plot download
+#| echo: false
+download_this(
+  counts_plot,
+  output_name = "counts_plot",
+  output_extension = ".pdf",
+  button_label = "PDF",
+  button_type = "primary"
+)
+```
+
+```{r fig.height=7, fig.width=5}
+#| label: HTSeq count plot draw
+#| echo: false
+#| fig-cap: Figure 3. Barplot denoted HTSeq counts per experimantal sample.
+counts_plot
+```
+
+#### ANOVA
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+
+counts.aov <- aov(counts ~ batch + group, counts.df)
+summary(counts.aov)
+```
+
+#### Normalized counts table
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+# Filter gene table by counts
+keep <- rowSums(counts(ddsHTSeq)>= 10) > ncol(ddsHTSeq)*0.3
+ddsHTSeq <- ddsHTSeq[keep,]
+
+ddsHTSeq <- DESeq(ddsHTSeq)
+
+COU <- counts(ddsHTSeq, normalized = T)
+
+COU.add <- merge(convertID[c(1,2)], cbind(rownames(COU), COU), by = 1)
+
+datatable(COU.add, 
+          caption = "Table 3. Normalized counts table.",
+          style = "bootstrap5", 
+          extensions = 'Buttons', 
+          options = list(dom = 'lBfrtip',
+                         buttons = c('csv', 'excel')))
+```
+
+## Principal component analysis
+
+<p style="text-align: justify;">
+Principal component analysis ([PCA](https://en.wikipedia.org/wiki/Principal_component_analysis)) was employed as a linear dimensional reduction technique for exploratory data analysis and visualization. Prior to `PCA`, the expression data underwent variance-stabilizing transformation ([VST](https://en.wikipedia.org/wiki/Variance-stabilizing_transformation)), which derives stable variance estimates from fitted dispersion-mean relationships. This transformation processes count data normalized by size factors, generating a matrix of approximately homeostatic values characterized by constant variance across the range of mean expression levels, while simultaneously accounting for library size differences. The transformed data were visualized through bi-dimensional projection of the first two principal components (Figure 4), with the proportion of explained variance for each component detailed in Figure 5. Permutation multivariate analysis of variance ([PERMANOVA](https://en.wikipedia.org/wiki/Permutational_analysis_of_variance)) revealed statistically significant associations between expression profiles and batch effects, while no significant relationships with experimental groups were detected.
+<p>
+
+```{r}
+#| echo: false
+# Make PCA visualization
+vsd <- as.data.frame(assay(vst(ddsHTSeq)))
+
+PCA <- prcomp(t(vsd))
+PCA.points <- as.data.frame(PCA$x)
+PCA.points <- merge(meta_data, cbind(rownames(PCA.points), PCA.points), by = 1)[-2]
+
+PCA_plot <- ggplot(PCA.points, aes(PC1, PC2, col = group, shape = batch))+
+    geom_point(size = 2.75)+
+    # geom_text(size = 3)+
+    theme_bw()+
+    theme(legend.position = "right")+
+    scale_color_brewer(palette = "Set1")+
+    xlab("PC1")+
+    ylab("PC2")
+
+prop_plot <- fviz_eig(PCA, col.var="blue") + ggtitle("Proportion of explained variance")
+```
+
+```{r fig.height=4, fig.width=5}
+#| echo: false
+download_this(
+  PCA_plot,
+  output_name = "PCA_plot",
+  output_extension = ".pdf",
+  button_label = "PDF",
+  button_type = "primary"
+)
+```
+
+```{r fig.height=4, fig.width=5}
+#| echo: false
+#| fig-cap: Figure 4. PCA visualization using regularized log transformation counts.
+PCA_plot
+```
+
+```{r fig.height=4, fig.width=5}
+#| echo: false
+download_this(
+  prop_plot,
+  output_name = "prop_plot",
+  output_extension = ".pdf",
+  button_label = "PDF",
+  button_type = "primary"
+)
+```
+
+```{r fig.height=4, fig.width=5}
+#| echo: false
+#| fig-cap: Figure 5. The proportion of explained variance of each component.
+prop_plot
+```
+
+```{r}
+#| echo: false
+#| message: true
+#| warning: false
+PERMANOVA <- adonis2(t(vsd) ~  batch + group, data = meta_data, permutations = 9999, by = "margin", method = "euclidean")
+PERMANOVA
+```
+
+## Differential expression analysis
+
+<p style="text-align: justify;">
+Differential expression analysis was conducted using the `DESeq2` package, employing the model formula `~ batch + group` to account for batch-related dispersion effects. The analysis revealed positive log2 fold change (lfc) values associated with both *B. adolescentis* 150 and *L. rhamnosus* K32 supplementation groups, while negative values corresponded to the untreated melanoma control group. `DESeq2` performs differential expression analysis by fitting generalized linear models to negative binomial distributed counts and evaluating linear contrasts between experimental groups. Our results demonstrated 3 significantly up-regulated and 16 down-regulated genes in the `M_BIF` group compared to the `M` control group. For the `M_LAC` comparison, 21 differentially expressed genes were identified relative to the `M` group, while no significant changes were observed in the reverse comparison. When directly comparing bacterial supplementation groups, 39 genes were associated with `M_BIF` and 116 with `M_LAC`. Differentially expressed genes were determined using stringent thresholds (adjusted p-value \< 0.05, \|lfc\| \> 1). Complete statistical results of the differential analysis are presented in Tables 4-6. Visual representation of the results through volcano plots (Figures 6-8) effectively illustrates the relationship between statistical significance (-log10 p-value) and magnitude of expression changes (lfc) across all comparisons.
+<p>
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+# Make DEG tables
+get_DEG <- function(res){
+    # DEG <- cbind(as.data.frame(res), COU)
+    DEG <- as.data.frame(res)
+    DEG <- DEG[!is.na(DEG$padj),]
+    # DEG <- DEG[order(DEG$log2FoldChange, decreasing = T),]
+    return(DEG)
+}
+
+contr_1 <- makeContrasts(groupM_BIF - groupM, levels = resultsNames(ddsHTSeq))
+contr_2 <- makeContrasts(groupM_LAC - groupM, levels = resultsNames(ddsHTSeq))
+contr_3 <- makeContrasts(groupM_BIF - groupM_LAC, levels = resultsNames(ddsHTSeq))
+
+res_1 <- results(ddsHTSeq, contrast=contr_1)
+res_2 <- results(ddsHTSeq, contrast=contr_2)
+res_3 <- results(ddsHTSeq, contrast=contr_3)
+
+DEG_BIF <- get_DEG(res_1)
+DEG_LAC <- get_DEG(res_2)
+DEG_BIF_LAC <- get_DEG(res_3)
+
+DEG_BIF_add <- merge(convertID[-3], cbind(rownames(DEG_BIF), DEG_BIF), by = 1)
+DEG_LAC_add <- merge(convertID[-3], cbind(rownames(DEG_LAC), DEG_LAC), by = 1)
+DEG_BIF_LAC_add <- merge(convertID[-3], cbind(rownames(DEG_BIF_LAC), DEG_BIF_LAC), by = 1)
+
+DEG_BIF_add <- DEG_BIF_add[order(DEG_BIF_add$log2FoldChange, decreasing = T),]
+rownames(DEG_BIF_add) <- 1:nrow(DEG_BIF_add)
+
+DEG_LAC_add <- DEG_LAC_add[order(DEG_LAC_add$log2FoldChange, decreasing = T),]
+rownames(DEG_LAC_add) <- 1:nrow(DEG_LAC_add)
+
+DEG_BIF_LAC_add <- DEG_BIF_LAC_add[order(DEG_BIF_LAC_add$log2FoldChange, decreasing = T),]
+rownames(DEG_BIF_LAC_add) <- 1:nrow(DEG_BIF_LAC_add)
+```
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+VolcanoPlot1 <- EnhancedVolcano(DEG_BIF_add,
+                lab = DEG_BIF_add$SYMBOL,
+                x = 'log2FoldChange', 
+                y = 'padj', pCutoff = 0.05, 
+                subtitle = "", 
+                title = "", 
+                ###########################
+                # labSize = 4,
+                drawConnectors = TRUE, 
+                # widthConnectors = 0.75, 
+                gridlines.major = FALSE, 
+                gridlines.minor = FALSE)
+
+VolcanoPlot2 <- EnhancedVolcano(DEG_LAC_add,
+                lab = DEG_LAC_add$SYMBOL,
+                x = 'log2FoldChange', 
+                y = 'padj', pCutoff = 0.05, 
+                subtitle = "", 
+                title = "", 
+                ###########################
+                # labSize = 4,
+                drawConnectors = TRUE, 
+                # widthConnectors = 0.75, 
+                gridlines.major = FALSE, 
+                gridlines.minor = FALSE)
+
+VolcanoPlot3 <- EnhancedVolcano(DEG_BIF_LAC_add,
+                lab = DEG_BIF_LAC_add$SYMBOL,
+                x = 'log2FoldChange', 
+                y = 'padj', pCutoff = 0.05, 
+                subtitle = "", 
+                title = "", 
+                ###########################
+                # labSize = 4,
+                drawConnectors = TRUE, 
+                # widthConnectors = 0.75, 
+                gridlines.major = FALSE, 
+                gridlines.minor = FALSE)
+```
+
+#### M_BIF vs M
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+datatable(DEG_BIF_add, 
+          caption = "Table 4. Differential expression analysis results: M_BIF vs M.",
+          style = "bootstrap5", 
+          extensions = 'Buttons', 
+          options = list(dom = 'lBfrtip', 
+              buttons = c('csv', 'excel')))
+```
+
+```{r fig.height=8, fig.width=7}
+#| label: Volcano plot 1
+#| echo: false
+#| message: false
+#| warning: false
+download_this(
+  VolcanoPlot1,
+  output_name = "VolcanoPlot",
+  output_extension = ".pdf",
+  button_label = "PDF",
+  button_type = "primary"
+)
+```
+
+```{r fig.height=8, fig.width=7}
+#| echo: false
+#| message: false
+#| warning: false
+#| fig-cap: "Figure 6. Volcano plot denoted differential expressed genes: M_BIF vs M."
+VolcanoPlot1
+```
+
+#### M_LAC vs M
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+datatable(DEG_LAC_add, 
+          caption = "Table 5. Differential expression analysis results: M_LAC vs M.",
+          style = "bootstrap5", 
+          extensions = 'Buttons', 
+          options = list(dom = 'lBfrtip', 
+              buttons = c('csv', 'excel')))
+```
+
+```{r fig.height=8, fig.width=7}
+#| echo: false
+#| message: false
+#| warning: false
+download_this(
+  VolcanoPlot2,
+  output_name = "VolcanoPlot",
+  output_extension = ".pdf",
+  button_label = "PDF",
+  button_type = "primary"
+)
+```
+
+```{r fig.height=8, fig.width=7}
+#| echo: false
+#| message: false
+#| warning: false
+#| fig-cap: "Figure 7. Volcano plot denoted differential expressed genes: M_LAC vs M."
+VolcanoPlot2
+```
+
+#### M_BIF vs M_LAC
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+datatable(DEG_BIF_LAC_add, 
+          caption = "Table 6. Differential expression analysis results: M_BIF vs M_LAC.",
+          style = "bootstrap5", 
+          extensions = 'Buttons', 
+          options = list(dom = 'lBfrtip', 
+              buttons = c('csv', 'excel')))
+```
+
+```{r fig.height=8, fig.width=7}
+#| echo: false
+#| message: false
+#| warning: false
+download_this(
+  VolcanoPlot3,
+  output_name = "VolcanoPlot",
+  output_extension = ".pdf",
+  button_label = "PDF",
+  button_type = "primary"
+)
+```
+
+```{r fig.height=8, fig.width=7}
+#| echo: false
+#| message: false
+#| warning: false
+#| fig-cap: "Figure 8. Volcano plot denoted differential expressed genes: M_BIF vs M_LAC."
+VolcanoPlot3
+```
+
+## Gene set enrichment analysis
+
+<p style="text-align: justify;">
+Gene Set Enrichment Analysis ([GSEA](https://en.wikipedia.org/wiki/Gene_set_enrichment_analysis)) was employed to evaluate whether predefined gene sets exhibited statistically significant and concordant differences between biological states (e.g., phenotypic groups). This computational approach was implemented using multiple databases, enabling comprehensive identification of biological functions associated with the experimental conditions. For this analysis, we specifically utilized the HALLMARK `MSigDB` gene sets. The complete GSEA results are presented in Figure 9 and Tables 7-9. To delineate cell-type-specific expression patterns, we performed marker analysis using the Mouse `Cell Marker 2.0` database, with results visualized in Figure 10 and detailed in Tables 10-12. Complementary to this, Gene Set Variation Analysis (`GSVA`) was conducted to examine HALLMARK `MSigDB` gene sets in a sample-oriented manner (Figures 11-16). The investigation was extended to immune cell profiling through two complementary approaches: `mMCP-counter` was implemented for broad immune cell type quantification (Figure 17), while`GSVA` was specifically applied to assess critical immune parameters including M1/M2 macrophage polarization ratios and CD8+ T cell abundance (Figures 18-21).
+<p>
+
+#### MSigDb Hallmark
+
+```{r}
+#| message: false
+#| warning: false
+#| include: false
+pathwaysH <- msigdbr("mouse", category="H")
+pathwaysH.sbs <- split(as.character(pathwaysH$ensembl_gene), pathwaysH$gs_name)
+
+get_ranks <- function(DEG){
+    DEG$log2FoldChange[DEG$log2FoldChange > 0] <- 1
+    DEG$log2FoldChange[DEG$log2FoldChange < 0] <- -1
+    ranks.df <- -log10(DEG$pvalue)*DEG$log2FoldChange
+    names(ranks.df) <- rownames(DEG)
+    # names(ranks.df) <- sapply(str_split(names(ranks.df), "\\."), function(x) x[1])    
+    ranks.df <- sort(ranks.df, decreasing = T)
+    return(ranks.df)
+}
+
+ranks.bif <- get_ranks(DEG_BIF)
+ranks.lac <- get_ranks(DEG_LAC)
+ranks.bif.lac <- get_ranks(DEG_BIF_LAC)
+
+fgsea.bif <- fgsea(pathways = pathwaysH.sbs, 
+                  stats    = ranks.bif,
+                  eps      = 0.0,
+                  minSize  = 15,
+                  maxSize  = 500)
+
+fgsea.lac <- fgsea(pathways = pathwaysH.sbs, 
+                     stats    = ranks.lac,
+                     eps      = 0.0,
+                     minSize  = 15,
+                     maxSize  = 500)
+
+fgsea.bif.lac <- fgsea(pathways = pathwaysH.sbs, 
+                   stats    = ranks.bif.lac,
+                   eps      = 0.0,
+                   minSize  = 15,
+                   maxSize  = 500)
+
+filter_pval <- function(fgsea, NES, padj){
+    fgsea <- as.data.frame(fgsea)
+    fgsea <- fgsea[fgsea$padj < padj,]
+    fgsea <- fgsea[abs(fgsea$NES) > NES,]
+    fgsea <- fgsea[order(fgsea$NES, decreasing = T),]
+    return(fgsea)
+}
+
+fgsea.bif.filter <- filter_pval(fgsea.bif, 1, 0.01)
+rownames(fgsea.bif.filter) <- 1:nrow(fgsea.bif.filter)
+
+fgsea.lac.filter <- filter_pval(fgsea.lac, 1, 0.01)
+rownames(fgsea.lac.filter) <- 1:nrow(fgsea.lac.filter)
+
+fgsea.bif.lac.filter <- filter_pval(fgsea.bif.lac, 1, 0.01)
+rownames(fgsea.bif.lac.filter) <- 1:nrow(fgsea.bif.lac.filter)
+
+get_subset <- function(df, group){
+    df.sbs <- df[c(1,6)]
+    df.sbs$group <- group
+    return(df.sbs)
+}
+
+fgsea.bif.sbs <- get_subset(fgsea.bif.filter, "M+BIF vs M")
+fgsea.lac.sbs <- get_subset(fgsea.lac.filter, "M+LAC vs M ")
+fgsea.bif.lac.sbs <- get_subset(fgsea.bif.lac.filter, "M+BIF vs M+LAC")
+
+fgsea.all <- rbind(fgsea.bif.sbs, fgsea.lac.sbs, fgsea.bif.lac.sbs)
+fgsea.all <- spread(fgsea.all, group, NES, fill = 0)
+rownames(fgsea.all) <- fgsea.all$pathway
+fgsea.all <- fgsea.all[-1]
+
+heatmap.hallmark <- pheatmap::pheatmap(as.matrix(fgsea.all), cutree_rows = 7, cutree_cols = 2, display_numbers = T)
+
+# pdf("heatmap.hallmark.pdf", width = 7, height = 10)
+# heatmap.hallmark
+# dev.off()
+```
+
+##### M_BIF vs M
+
+```{r}
+#| echo: false
+datatable(fgsea.bif.filter[-8], 
+          caption = "Table 7. GSEA analysis results obtained using MSigDB: M_BIF vs M.",
+          style = "bootstrap5", 
+          extensions = 'Buttons', 
+          options = list(dom = 'lBfrtip',
+                         buttons = c('csv', 'excel')))
+```
+
+##### M_LAC vs M
+
+```{r}
+#| echo: false
+datatable(fgsea.lac.filter[-8], 
+          caption = "Table 8. GSEA analysis results obtained using MSigDB: M_LAC vs M.",
+          style = "bootstrap5", 
+          extensions = 'Buttons', 
+          options = list(dom = 'lBfrtip',
+                         buttons = c('csv', 'excel')))
+```
+
+##### M_BIF vs M_LAC
+
+```{r}
+#| echo: false
+datatable(fgsea.bif.lac.filter[-8], 
+          caption = "Table 9. GSEA analysis results obtained using MSigDB: M_BIF vs M_LAC.",
+          style = "bootstrap5", 
+          extensions = 'Buttons', 
+          options = list(dom = 'lBfrtip',
+                         buttons = c('csv', 'excel')))
+```
+
+[Figure 9](figures/heatmap.hallmark.pdf)
+
+```{r fig.width=7, fig.height=10}
+#| echo: false
+#| message: false
+#| warning: false
+#| fig-cap: "Figure 9. Heatmap denoted NES values of MSigDB Hallmark pathways linked to experimental groups."
+heatmap.hallmark
+```
+
+#### Cell Marker 2.0
+
+```{r}
+#| message: false
+#| warning: false
+#| include: false
+cell_marker_data <- read.csv("data/cell_marker_mouse.csv",sep = "\t")
+cell_names <- unique(cell_marker_data$cell_name)
+
+cells <- cell_marker_data %>%
+    dplyr::select(cell_name, GeneID)
+
+t_cells <- cell_names[!is.na(str_extract(cell_names, "T cell"))]
+b_cells <- cell_names[!is.na(str_extract(cell_names, "B cell"))]
+neutrophil <- cell_names[!is.na(str_extract(cell_names, "Neutrophil|neutrophil"))]
+dendritic_cell <- cell_names[!is.na(str_extract(cell_names, "Dendritic|dendritic"))]
+basophil <- cell_names[!is.na(str_extract(cell_names, "Basophil|basophil"))]
+mast_cell <- cell_names[!is.na(str_extract(cell_names, "Mast|mast"))]
+macrophage <- cell_names[!is.na(str_extract(cell_names, "Macrophage|macrophage"))]
+# histiocyte <- cell_names[!is.na(str_extract(cell_names, "Histiocyte|histiocyte"))]
+kupffer_cell <- cell_names[!is.na(str_extract(cell_names, "Kupffer|kupffer"))]
+plasma_cell <- cell_names[!is.na(str_extract(cell_names, "plasma|Plasma"))]
+innate_lymphoid <- cell_names[!is.na(str_extract(cell_names, "Innate|Lymphoid|innate|lymphoid"))]
+NK <- cell_names[!is.na(str_extract(cell_names, "NK|natural killer"))]
+
+lymphocyte <- cell_names[!is.na(str_extract(cell_names, "Lymphocyte|lymphocyte"))]
+monocyte <- cell_names[!is.na(str_extract(cell_names, "Monocyte|monocyte"))]
+granulocyte <- cell_names[!is.na(str_extract(cell_names, "Granulocyte|granulocyte"))]
+
+immune.cells <- unique(c(t_cells, b_cells, neutrophil, dendritic_cell, basophil, mast_cell, 
+         macrophage, kupffer_cell, plasma_cell, innate_lymphoid, NK, 
+         lymphocyte, monocyte, granulocyte))
+
+ens2ent <- mapIdscell_nameens2ent <- mapIds(org.Mm.eg.db, keys = rownames(COU), keytype="ENSEMBL", column = "ENTREZID")
+ens2ent <- as.data.frame(ens2ent)
+ens2ent <- cbind(ENSEMBL = rownames(ens2ent), ENTREZID = ens2ent$ens2ent)
+row.names(ens2ent) <- 1:nrow(ens2ent)
+
+get_ENTREZID_rank <- function(rank.df, ens2ent){
+    rank.df <- merge(ens2ent, cbind(names(rank.df), rank.df), by = 1)
+    rank.df <- rank.df[!is.na(rank.df$ENTREZID),]
+    rank.df <- rank.df[!duplicated(rank.df$ENTREZID),]
+    
+    rank.ent <- as.numeric(rank.df$rank.df)
+    names(rank.ent) <- rank.df$ENTREZID
+    rank.ent <- sort(rank.ent, decreasing = T)
+    return(rank.ent)
+}
+
+ranks.bif.ent <- get_ENTREZID_rank(ranks.bif, ens2ent)
+ranks.lac.ent <- get_ENTREZID_rank(ranks.lac, ens2ent)
+ranks.bif.lac.ent <- get_ENTREZID_rank(ranks.bif.lac, ens2ent)
+
+get_GSEA <- function(ranks.df, TERM2GENE, 
+                     eps, pvalueCutoff, minGSSize, maxGSSize){
+    gsea.df <- GSEA(ranks.df, TERM2GENE = TERM2GENE, eps = eps, 
+                      pvalueCutoff = pvalueCutoff, minGSSize = minGSSize, 
+                      maxGSSize = maxGSSize)
+    gsea.df <- as.data.frame(gsea.df)
+    gsea.df <- gsea.df[abs(gsea.df$NES) > 1,]
+    return(gsea.df)
+}
+
+set.seed(100)
+cells.bif <- get_GSEA(ranks.bif.ent, TERM2GENE = cells[cells$cell_name %in% immune.cells,],
+         eps = 0, pvalueCutoff = 0.05, minGSSize = 20, maxGSSize = 500)
+cells.lac <- get_GSEA(ranks.lac.ent, TERM2GENE = cells[cells$cell_name %in% immune.cells,],
+                      eps = 0, pvalueCutoff = 0.05, minGSSize = 20, maxGSSize = 500)
+cells.bif.lac <- get_GSEA(ranks.bif.lac.ent, TERM2GENE = cells[cells$cell_name %in% immune.cells,],
+                      eps = 0, pvalueCutoff = 0.05, minGSSize = 20, maxGSSize = 500)
+
+get_subset2 <- function(df, group){
+    df.sbs <- df[c(1,5)]
+    df.sbs$group <- group
+    return(df.sbs)
+}
+
+cells.bif.sbs <- get_subset2(cells.bif, "M+BIF vs M")
+cells.lac.sbs <- get_subset2(cells.lac, "M+LAC vs M")
+cells.bif.lac.sbs <- get_subset2(cells.bif.lac, "M+BIF vs M+LAC")
+
+cells.all <- rbind(cells.bif.sbs, cells.lac.sbs, cells.bif.lac.sbs)
+cells.all.s <- spread(cells.all, ID, NES, fill =  0)
+rownames(cells.all.s) <- cells.all.s$group
+cells.all.s <- cells.all.s[-1]
+
+cells.bif_add <- cells.bif
+rownames(cells.bif_add) <- 1:nrow(cells.bif_add)
+cells.bif_add <- cells.bif_add[-c(1,10:11)]
+cells.bif_add <- cells.bif_add[order(cells.bif_add$NES, decreasing = T),]
+
+cells.lac_add <- cells.lac
+rownames(cells.lac_add) <- 1:nrow(cells.lac_add)
+cells.lac_add <- cells.lac_add[-c(1,10:11)]
+cells.lac_add <- cells.lac_add[order(cells.lac_add$NES, decreasing = T),]
+
+cells.bif.lac_add <- cells.bif.lac
+rownames(cells.bif.lac_add) <- 1:nrow(cells.bif.lac_add)
+cells.bif.lac_add <- cells.bif.lac_add[-c(1,10:11)]
+cells.bif.lac_add <- cells.bif.lac_add[order(cells.bif.lac_add$NES, decreasing = T),]
+
+heatmap.immune <- pheatmap::pheatmap(t(cells.all.s), display_numbers = T, cutree_rows = 4)
+
+# pdf("heatmap.immune.pdf", width = 5, height = 7)
+# heatmap.immune
+# dev.off()
+```
+
+##### M_BIF vs M
+
+```{r}
+#| echo: false
+datatable(cells.bif_add, 
+          caption = "Table 10. GSEA analysis results obtained using Cell Marker 2.0: M_BIF vs M.",
+          style = "bootstrap5", 
+          extensions = 'Buttons', 
+          options = list(dom = 'lBfrtip',
+                         buttons = c('csv', 'excel')))
+```
+
+##### M_LAC vs M
+
+```{r}
+#| echo: false
+datatable(cells.lac_add, 
+          caption = "Table 11. GSEA analysis results obtained using Cell Marker 2.0: M_LAC vs M.",
+          style = "bootstrap5", 
+          extensions = 'Buttons', 
+          options = list(dom = 'lBfrtip',
+                         buttons = c('csv', 'excel')))
+```
+
+##### M_BIF vs M_LAC
+
+```{r}
+#| echo: false
+datatable(cells.bif.lac_add, 
+          caption = "Table 12. GSEA analysis results obtained using Cell Marker 2.0: M_BIF vs M_LAC.",
+          style = "bootstrap5", 
+          extensions = 'Buttons', 
+          options = list(dom = 'lBfrtip',
+                         buttons = c('csv', 'excel')))
+```
+
+[Figure 10](figures/heatmap.immune.pdf)
+
+```{r fig.width=5, fig.height=7}
+#| echo: false
+#| message: false
+#| warning: false
+#| fig-cap: "Figure 10. Heatmap denoted NES values of immune cell types linked to experimental groups."
+heatmap.immune
+```
+
+#### Specific HALLMARK pathways levels
+
+```{r}
+#| include: false
+exp.data <- vst(counts(ddsHTSeq))
+
+hallmark_sets <- list(
+    HALLMARK_INTERFERON_GAMMA_RESPONSE = pathwaysH$ensembl_gene[pathwaysH$gs_name == "HALLMARK_INTERFERON_GAMMA_RESPONSE"],
+    HALLMARK_INTERFERON_ALPHA_RESPONSE = pathwaysH$ensembl_gene[pathwaysH$gs_name == "HALLMARK_INTERFERON_ALPHA_RESPONSE"],
+    HALLMARK_TNFA_SIGNALING_VIA_NFKB = pathwaysH$ensembl_gene[pathwaysH$gs_name == "HALLMARK_TNFA_SIGNALING_VIA_NFKB"],
+    HALLMARK_INFLAMMATORY_RESPONSE = pathwaysH$ensembl_gene[pathwaysH$gs_name == "HALLMARK_INFLAMMATORY_RESPONSE"],
+    HALLMARK_TGF_BETA_SIGNALING = pathwaysH$ensembl_gene[pathwaysH$gs_name == "HALLMARK_TGF_BETA_SIGNALING"],
+    HALLMARK_EPITHELIAL_MESENCHYMAL_TRANSITION = pathwaysH$ensembl_gene[pathwaysH$gs_name == "HALLMARK_EPITHELIAL_MESENCHYMAL_TRANSITION"]
+)
+
+gsvapar_hallmark <- gsvaParam(exp.data, hallmark_sets)
+ssgsea_hallmark <- gsva(gsvapar_hallmark)
+
+ssgsea_hallmark <- as.data.frame(t(ssgsea_hallmark))
+ssgsea_hallmark <- as.data.frame(apply(ssgsea_hallmark, 2, rank))
+ssgsea_hallmark <- merge(meta_data, cbind(rownames(ssgsea_hallmark), ssgsea_hallmark), by = 1)[-2]
+
+IGR_plot <- ggplot(ssgsea_hallmark, aes(group, HALLMARK_INTERFERON_GAMMA_RESPONSE, fill = group))+
+    geom_boxplot()+
+    theme_bw()+
+    theme(legend.position = "none")+
+    scale_fill_brewer(palette = "Set1")+
+    # stat_compare_means(comparisons = my_comparison)+
+    ylab("Counts")+
+    xlab("Group")+
+    ggtitle("INTERFERON GAMMA RESPONSE")+
+    theme(plot.title = element_text(size = 11))
+
+IAR_plot <- ggplot(ssgsea_hallmark, aes(group, HALLMARK_INTERFERON_ALPHA_RESPONSE, fill = group))+
+    geom_boxplot()+
+    theme_bw()+
+    theme(legend.position = "none")+
+    scale_fill_brewer(palette = "Set1")+
+    # stat_compare_means(comparisons = my_comparison)+
+    ylab("Counts")+
+    xlab("Group")+
+    ggtitle("INTERFERON ALPHA RESPONSE")+
+    theme(plot.title = element_text(size = 11))
+
+TSVF_plot <- ggplot(ssgsea_hallmark, aes(group, HALLMARK_TNFA_SIGNALING_VIA_NFKB, fill = group))+
+    geom_boxplot()+
+    theme_bw()+
+    theme(legend.position = "none")+
+    scale_fill_brewer(palette = "Set1")+
+    # stat_compare_means(comparisons = my_comparison)+
+    ylab("Counts")+
+    xlab("Group")+
+    ggtitle("TNFA SIGNALING VIA NFKB")+
+    theme(plot.title = element_text(size = 11))
+
+IR_plot <- ggplot(ssgsea_hallmark, aes(group, HALLMARK_INFLAMMATORY_RESPONSE, fill = group))+
+    geom_boxplot()+
+    theme_bw()+
+    theme(legend.position = "none")+
+    scale_fill_brewer(palette = "Set1")+
+    # stat_compare_means(comparisons = my_comparison)+
+    ylab("Counts")+
+    xlab("Group")+
+    ggtitle("INFLAMMATORY RESPONSE")+
+    theme(plot.title = element_text(size = 11))
+
+TBS_plot <- ggplot(ssgsea_hallmark, aes(group, HALLMARK_TGF_BETA_SIGNALING, fill = group))+
+    geom_boxplot()+
+    theme_bw()+
+    theme(legend.position = "none")+
+    scale_fill_brewer(palette = "Set1")+
+    # stat_compare_means(comparisons = my_comparison)+
+    ylab("Counts")+
+    xlab("Group")+
+    ggtitle("HALLMARK TGF BETA SIGNALING")+
+    theme(plot.title = element_text(size = 11))
+
+EMT_plot <- ggplot(ssgsea_hallmark, aes(group, HALLMARK_EPITHELIAL_MESENCHYMAL_TRANSITION, fill = group))+
+    geom_boxplot()+
+    theme_bw()+
+    theme(legend.position = "none")+
+    scale_fill_brewer(palette = "Set1")+
+    # stat_compare_means(comparisons = my_comparison)+
+    ylab("Counts")+
+    xlab("Group")+
+    ggtitle("EPITHELIAL MESENCHYMAL TRANSITION")+
+    theme(plot.title = element_text(size = 9))
+
+```
+
+```{r fig.width=3, fig.height=4}
+#| echo: false
+download_this(
+  IGR_plot,
+  output_name = "IGR_plot",
+  output_extension = ".pdf",
+  button_label = "PDF",
+  button_type = "primary"
+)
+```
+
+```{r fig.width=3, fig.height=4}
+#| echo: false
+#| message: false
+#| warning: false
+#| fig-cap: "Figure 11. GSVA predicted counts of HALLMARK_INTERFERON_GAMMA_RESPONSE pathway in experimental groups."
+IGR_plot 
+```
+
+```{r}
+#| echo: false
+#| message: true
+#| warning: false
+summary(aov(HALLMARK_INTERFERON_GAMMA_RESPONSE ~ group + batch, data = ssgsea_hallmark))
+```
+
+```{r fig.width=3, fig.height=4}
+#| echo: false
+download_this(
+  IAR_plot,
+  output_name = "IAR_plot",
+  output_extension = ".pdf",
+  button_label = "PDF",
+  button_type = "primary"
+)
+```
+
+```{r fig.width=3, fig.height=4}
+#| echo: false
+#| message: false
+#| warning: false
+#| fig-cap: "Figure 12. GSVA predicted counts of HALLMARK_INTERFERON_ALPHA_RESPONSE pathway in experimental groups."
+IAR_plot 
+```
+
+```{r}
+#| echo: false
+#| message: true
+#| warning: false
+summary(aov(HALLMARK_INTERFERON_ALPHA_RESPONSE ~ group + batch, data = ssgsea_hallmark))
+```
+
+```{r fig.width=3, fig.height=4}
+#| echo: false
+download_this(
+  TSVF_plot,
+  output_name = "TSVF_plot",
+  output_extension = ".pdf",
+  button_label = "PDF",
+  button_type = "primary"
+)
+```
+
+```{r fig.width=3, fig.height=4}
+#| echo: false
+#| message: false
+#| warning: false
+#| fig-cap: "Figure 13. GSVA predicted counts of HALLMARK_TNFA_SIGNALING_VIA_NFKB pathway in experimental groups."
+TSVF_plot 
+```
+
+```{r}
+#| echo: false
+#| message: true
+#| warning: false
+summary(aov(HALLMARK_TNFA_SIGNALING_VIA_NFKB ~ group + batch, data = ssgsea_hallmark))
+```
+
+```{r fig.width=3, fig.height=4}
+#| echo: false
+download_this(
+  IR_plot,
+  output_name = "IR_plot",
+  output_extension = ".pdf",
+  button_label = "PDF",
+  button_type = "primary"
+)
+```
+
+```{r fig.width=3, fig.height=4}
+#| echo: false
+#| message: false
+#| warning: false
+#| fig-cap: "Figure 14. GSVA predicted counts of HALLMARK_INFLAMMATORY_RESPONSE pathway in experimental groups."
+IR_plot 
+```
+
+```{r}
+#| echo: false
+#| message: true
+#| warning: false
+summary(aov(HALLMARK_INFLAMMATORY_RESPONSE ~ group + batch, data = ssgsea_hallmark))
+```
+
+```{r fig.width=3, fig.height=4}
+#| echo: false
+download_this(
+  TBS_plot,
+  output_name = "IR_plot",
+  output_extension = ".pdf",
+  button_label = "PDF",
+  button_type = "primary"
+)
+```
+
+```{r fig.width=3, fig.height=4}
+#| echo: false
+#| message: false
+#| warning: false
+#| fig-cap: "Figure 15. GSVA predicted counts of HALLMARK_TGF_BETA_SIGNALING pathway in experimental groups."
+TBS_plot
+```
+
+```{r}
+#| echo: false
+#| message: true
+#| warning: false
+summary(aov(HALLMARK_TGF_BETA_SIGNALING ~ group + batch, data = ssgsea_hallmark))
+```
+
+```{r fig.width=3, fig.height=4}
+#| echo: false
+download_this(
+  EMT_plot,
+  output_name = "EMT_plot",
+  output_extension = ".pdf",
+  button_label = "PDF",
+  button_type = "primary"
+)
+```
+
+```{r fig.width=3, fig.height=4}
+#| echo: false
+#| message: false
+#| warning: false
+#| fig-cap: "Figure 16. GSVA predicted counts of HALLMARK_EPITHELIAL_MESENCHYMAL_TRANSITION pathway in experimental groups."
+EMT_plot
+```
+
+```{r}
+#| echo: false
+#| message: true
+#| warning: false
+summary(aov(HALLMARK_EPITHELIAL_MESENCHYMAL_TRANSITION ~ group + batch, data = ssgsea_hallmark))
+```
+
+#### Immune cell types deconvolution
+
+###### mMCP-counter
+
+```{r}
+#| message: false
+#| warning: false
+#| include: false
+immune_cells <- deconvolute_mmcp_counter(exp.data, log2 = F, genome = "GCRm39", gene_id = "ENSEMBL.ID")
+
+immune_cells.df <- as.data.frame(t(immune_cells))
+immune_cells.df <- merge(meta_data, cbind(rownames(immune_cells.df), immune_cells.df), by = 1)[-2]
+immune_cells.df$`T cells` <- rank(immune_cells.df$`T cells`)
+
+my_comparison <- list(c("M", "M_BIF"), c("M", "M_LAC"), c("M_BIF", "M_LAC"))
+
+tcells_boxplot <- ggplot(immune_cells.df, aes(group, `T cells`, fill = group))+
+    geom_boxplot()+
+    theme_bw()+
+    theme(legend.position = "none")+
+    scale_fill_brewer(palette = "Set1")+
+    # stat_compare_means(comparisons = my_comparison)+
+    xlab("Mmcp counter T cells score")+
+    ylab("Group")+
+    ggtitle("T cell")
+```
+
+```{r fig.width=3, fig.height=4}
+#| echo: false
+download_this(
+  tcells_boxplot,
+  output_name = "tcells_boxplot",
+  output_extension = ".pdf",
+  button_label = "PDF",
+  button_type = "primary"
+)
+```
+
+```{r fig.width=3, fig.height=4}
+#| echo: false
+#| message: false
+#| warning: false
+#| fig-cap: "Figure 17. Mmcp counter predicted T cell values in experimental groups."
+tcells_boxplot
+```
+
+```{r}
+#| label: Mmcp counter ANOVA
+#| echo: false
+#| message: true
+#| warning: false
+summary(aov(`T cells` ~ group + batch, data = immune_cells.df))
+```
+
+#### GSVA
+
+```{r}
+#| message: false
+#| warning: false
+#| include: false
+df.Symbol <- as.data.frame(counts(ddsHTSeq))
+df.Symbol <- merge(convertID[c(1,3)], cbind(rownames(df.Symbol), df.Symbol), by = 1)
+df.Symbol <- df.Symbol[!is.na(df.Symbol$ENTREZID),]
+df.Symbol <- df.Symbol[!duplicated(df.Symbol$ENTREZID),]
+df.Symbol <- df.Symbol[-1]
+
+rownames(df.Symbol) <- df.Symbol$ENTREZID
+df.Symbol <- df.Symbol[-1]
+```
+
+```{r}
+#| include: false
+macro_sets <- list(
+    M1 = cell_marker_data$GeneID[cell_marker_data$cell_name == "M1 macrophage"],
+    M2 = cell_marker_data$GeneID[cell_marker_data$cell_name == "M2 macrophage"]
+)
+
+gsvapar <- gsvaParam(vst(as.matrix(df.Symbol)), macro_sets)
+ssgsea_scores <- gsva(gsvapar)
+
+ssgsea_results <- as.data.frame(t(ssgsea_scores))
+
+ssgsea_results$M1_M2_ratio <- ssgsea_results$M1 / ssgsea_results$M2
+ssgsea_results <- merge(meta_data, cbind(rownames(ssgsea_results), ssgsea_results), by = 1)[-2]
+
+ssgsea_results$M1 <- rank(ssgsea_results$M1)
+ssgsea_results$M2 <- rank(ssgsea_results$M2)
+ssgsea_results$M1_M2_ratio <- rank(ssgsea_results$M1_M2_ratio)
+
+M1_boxplot <- ggplot(ssgsea_results, aes(group, M1, fill = group))+
+    geom_boxplot()+
+    theme_bw()+
+    theme(legend.position = "none")+
+    scale_fill_brewer(palette = "Set1")+
+    # stat_compare_means(comparisons = my_comparison)+
+    ylab("M1 counts")+
+    xlab("Group")+
+    ggtitle("M1 macrophage")
+
+M2_boxplot <- ggplot(ssgsea_results, aes(group, M2, fill = group))+
+    geom_boxplot()+
+    theme_bw()+
+    theme(legend.position = "none")+
+    scale_fill_brewer(palette = "Set1")+
+    # stat_compare_means(comparisons = my_comparison)+
+    ylab("M2 counts")+
+    xlab("Group")+
+    ggtitle("M2 macrophage")
+
+M1_M2_ratio_boxplot <- ggplot(ssgsea_results, aes(group, M1_M2_ratio, fill = group))+
+    geom_boxplot()+
+    theme_bw()+
+    theme(legend.position = "none")+
+    scale_fill_brewer(palette = "Set1")+
+    # stat_compare_means(comparisons = my_comparison)+
+    ylab("M1/M2 ratio counts")+
+    xlab("Group")+
+     ggtitle("M1/M2 ratio")
+```
+
+```{r fig.width=3, fig.height=4}
+#| echo: false
+download_this(
+  M1_boxplot,
+  output_name = "M1_boxplot",
+  output_extension = ".pdf",
+  button_label = "PDF",
+  button_type = "primary"
+)
+```
+
+```{r fig.width=3, fig.height=4}
+#| echo: false
+#| message: false
+#| warning: false
+#| fig-cap: "Figure 18. GSVA predicted counts of M1 macrophage in experimental groups."
+M1_boxplot
+```
+
+```{r}
+#| echo: false
+#| message: true
+#| warning: false
+summary(aov(M1 ~ group + batch, data = ssgsea_results))
+```
+
+```{r fig.width=3, fig.height=4}
+#| echo: false
+download_this(
+  M2_boxplot,
+  output_name = "M2_boxplot",
+  output_extension = ".pdf",
+  button_label = "PDF",
+  button_type = "primary"
+)
+```
+
+```{r fig.width=3, fig.height=4}
+#| echo: false
+#| message: false
+#| warning: false
+#| fig-cap: "Figure 19. GSVA predicted counts of M2 macrophage in experimental groups."
+M2_boxplot
+```
+
+```{r}
+#| echo: false
+#| message: true
+#| warning: false
+summary(aov(M2 ~ group + batch, data = ssgsea_results))
+```
+
+```{r fig.width=3, fig.height=4}
+#| echo: false
+download_this(
+  M1_M2_ratio_boxplot,
+  output_name = "M1_M2_ratio_boxplot",
+  output_extension = ".pdf",
+  button_label = "PDF",
+  button_type = "primary"
+)
+```
+
+```{r fig.width=3, fig.height=4}
+#| echo: false
+#| message: false
+#| warning: false
+#| fig-cap: "Figure 20. GSVA predicted counts of M1/M2 macrophage ratio in experimental groups."
+M1_M2_ratio_boxplot
+```
+
+```{r}
+#| echo: false
+#| message: true
+#| warning: false
+summary(aov(M1_M2_ratio ~ group + batch, data = ssgsea_results))
+```
+
+```{r}
+#| include: false
+CD8 <- cell_marker_data$GeneID[cell_marker_data$cell_name == "CD8+ T cell"]
+CD8 <- CD8[!is.na(CD8)]
+
+CD8_sets <- list(
+    CD8 = CD8
+)
+
+gsvapar_2 <- gsvaParam(vst(as.matrix(df.Symbol)), CD8_sets)
+ssgsea_scores_2 <- gsva(gsvapar_2)
+ssgsea_scores_2 <- as.data.frame(t(ssgsea_scores_2))
+
+ssgsea_scores_2 <- merge(meta_data, cbind(rownames(ssgsea_scores_2), ssgsea_scores_2), by = 1)[-2]
+ssgsea_scores_2$CD8 <- rank(ssgsea_scores_2$CD8)
+
+CD8_boxplot <- ggplot(ssgsea_scores_2, aes(group, CD8, fill = group))+
+    geom_boxplot()+
+    theme_bw()+
+    theme(legend.position = "none")+
+    scale_fill_brewer(palette = "Set1")+
+    # stat_compare_means(comparisons = my_comparison)+
+    ylab("CD8+ counts")+
+    xlab("Group")+
+    ggtitle("CD8+")
+```
+
+```{r fig.width=3, fig.height=4}
+#| echo: false
+download_this(
+  CD8_boxplot,
+  output_name = "CD8_boxplot",
+  output_extension = ".pdf",
+  button_label = "PDF",
+  button_type = "primary"
+)
+```
+
+```{r fig.width=3, fig.height=4}
+#| echo: false
+#| message: false
+#| warning: false
+#| fig-cap: "Figure 21. GSVA predicted counts of CD8+ T cells in experimental groups."
+CD8_boxplot
+```
+
+```{r}
+#| echo: false
+#| message: true
+#| warning: false
+```
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+summary(aov(CD8 ~ group + batch, data = ssgsea_scores_2))
+```
+
+## Co-expression analysis
+
+<p style="text-align: justify;">
+[Gene co-expression analysis](https://en.wikipedia.org/wiki/Gene_co-expression_network) was performed to identify functionally related gene clusters and investigate their potential associations with phenotypic traits. Prior to analysis, technical batch effects were removed from the expression matrix using the removeBatchEffect function implemented in the `limma` package. `PCA` of the batch-corrected data showed similar sample clustering patterns to the uncorrected dataset (Figures 22 and 23), with `PERMANOVA` confirming the effective removal of batch effects while revealing no significant associations with experimental groups. The `BioNERO` package identified several co-expression modules showing differential associations with experimental conditions. Notably, the greenyellow and sienna3 modules demonstrated positive correlations with the untreated melanoma group, while the pink and royalblue modules showed negative associations (Figures 24-27, Tables 13 and 14). Functional characterization through [over-representation analysis](https://en.wikipedia.org/wiki/Pathway_analysis) revealed significant biological pathways enriched in these modules (Tables 15 and 16). Hub gene analysis identified key regulatory elements within each module (Tables 17 and 18), with protein-protein interaction networks visualized for selected modules (Figure 28). Additional network characterization using `STRING` database highlighted potential functional relationships among module genes (Figures 29 and 30).
+<p>
+
+#### Batch correction
+
+```{r}
+#| include: false
+vsd_2 <- vst(ddsHTSeq, blind = F)
+mat <- removeBatchEffect(assay(vsd_2), batch = meta_data$batch)
+```
+
+```{r}
+#| include: false
+PCA_corr <- prcomp(t(mat))
+PCA_corr.points <- as.data.frame(PCA_corr$x)
+PCA_corr.points <- merge(meta_data, cbind(rownames(PCA_corr.points), PCA_corr.points), by = 1)[-2]
+
+PCA_corr_plot <- ggplot(PCA_corr.points, aes(PC1, PC2, col = group, shape = batch))+
+    geom_point(size = 2.75)+
+    # geom_text(size = 3)+
+    theme_bw()+
+    theme(legend.position = "right")+
+    scale_color_brewer(palette = "Set1")+
+    xlab("PC1")+
+    ylab("PC2")
+
+prop_corr_plot <- fviz_eig(PCA_corr, col.var="blue") + ggtitle("Proportion of variance")
+```
+
+```{r fig.height=4, fig.width=5}
+#| label: PCA 30
+#| echo: false
+download_this(
+  PCA_corr_plot,
+  output_name = "PCA_corr_plot",
+  output_extension = ".pdf",
+  button_label = "PDF",
+  button_type = "primary"
+)
+```
+
+```{r fig.height=4, fig.width=5}
+#| label: PCA 40
+#| echo: false
+#| fig-cap: "Figure 22. PCA visualization using vst transformation batch corrected counts."
+PCA_corr_plot
+```
+
+```{r fig.height=4, fig.width=5}
+#| echo: false
+download_this(
+  prop_corr_plot,
+  output_name = "prop_corr_plot",
+  output_extension = ".pdf",
+  button_label = "PDF",
+  button_type = "primary"
+)
+```
+
+```{r fig.height=4, fig.width=5}
+#| echo: false
+#| fig-cap: "Figure 23. The proportion of explained variance of each component."
+prop_corr_plot
+```
+
+```{r}
+#| echo: false
+PERMANOVA <- adonis2(t(mat) ~  batch + group, data = meta_data, permutations = 9999, by = "margin")
+PERMANOVA
+```
+
+#### Net construction
+
+```{r}
+#| include: false
+final_exp <- exp_preprocess(
+    mat, min_exp = 10, variance_filter = TRUE, n = 4000
+)
+
+sft <- SFT_fit(final_exp, net_type = "signed hybrid", cor_method = "pearson")
+power <- sft$power
+
+net <- exp2gcn(
+    final_exp, net_type = "signed hybrid", SFTpower = power, 
+    cor_method = "pearson"
+)
+
+plot_dendro <- plot_dendro_and_colors(net)
+plot_cor_module <- plot_eigengene_network(net)
+plot_ngenes <- plot_ngenes_per_module(net)
+```
+
+```{r fig.height=5, fig.width=8}
+#| echo: false
+download_this(
+  plot_dendro,
+  output_name = "plot_dendro",
+  output_extension = ".pdf",
+  button_label = "PDF",
+  button_type = "primary"
+)
+```
+
+```{r fig.height=5, fig.width=8}
+#| echo: false
+#| fig-cap: "Figure 24. Dengrogramm of genes and modules."
+plot_dendro
+```
+
+```{r fig.height=6, fig.width=8}
+#| echo: false
+download_this(
+  plot_ngenes,
+  output_name = "plot_ngenes",
+  output_extension = ".pdf",
+  button_label = "PDF",
+  button_type = "primary"
+)
+```
+
+```{r fig.height=6, fig.width=8}
+#| echo: false
+#| fig-cap: "Figure 25. Number of genes per module."
+plot_ngenes
+```
+
+```{r}
+#| include: false
+dfg <- meta_data[c(1,3)]
+rownames(dfg) <- dfg$sampleid
+dfg <- dfg[-1]
+
+MEtrait <- module_trait_cor(exp = final_exp, MEs = net$MEs, metadata = dfg)
+module_trait_cor_plot <- plot_module_trait_cor(MEtrait)
+
+# pdf("module_trait_cor_plot.pdf", width = 6, height = 8)
+# module_trait_cor_plot
+# dev.off()
+
+cor_sets <- c("greenyellow", "sienna3", "pink", "royalblue")
+
+expression_plot_1 <- plot_expression_profile(
+    exp = final_exp, 
+    net = net, 
+    metadata = dfg,
+    plot_module = TRUE, 
+    modulename = cor_sets[1]
+) + scale_fill_brewer(palette = "Set1") +
+    ggtitle("greenyellow")+
+    xlab("Sample")
+
+expression_plot_2 <- plot_expression_profile(
+    exp = final_exp, 
+    net = net, 
+    metadata = dfg,
+    plot_module = TRUE, 
+    modulename = cor_sets[2]
+) + scale_fill_brewer(palette = "Set1") +
+    ggtitle("sienna3")+
+    xlab("Sample")
+
+expression_plot_3 <- plot_expression_profile(
+    exp = final_exp, 
+    net = net, 
+    metadata = dfg,
+    plot_module = TRUE, 
+    modulename = cor_sets[3]
+) + scale_fill_brewer(palette = "Set1") +
+    ggtitle("pink")+
+    xlab("Sample")
+
+expression_plot_4 <- plot_expression_profile(
+    exp = final_exp, 
+    net = net, 
+    metadata = dfg,
+    plot_module = TRUE, 
+    modulename = cor_sets[4]
+) + scale_fill_brewer(palette = "Set1") +
+    ggtitle("royalblue")+
+    xlab("Sample")
+
+expression_plot <- ggarrange(expression_plot_1, expression_plot_2, expression_plot_3, expression_plot_4, ncol = 1, common.legend = T)
+```
+
+[Figure 26](figures/module_trait_cor_plot.pdf)
+
+#### Co-expressed modules linked to M group
+
+```{r fig.height=8, fig.width=6}
+#| echo: false
+#| fig-cap: "Figure 26. Co-expression module association with experimental groups."
+module_trait_cor_plot
+```
+
+```{r fig.height=12, fig.width=6}
+#| echo: false
+download_this(
+  expression_plot,
+  output_name = "expression_plot",
+  output_extension = ".pdf",
+  button_label = "PDF",
+  button_type = "primary"
+)
+```
+
+```{r fig.height=12, fig.width=6}
+#| echo: false
+#| fig-cap: "Figure 27. Expression profiles of modules linked to experimental groups."
+expression_plot
+```
+
+```{r}
+#| include: false
+genes_and_modules <- net$genes_and_modules
+selected_modules <- genes_and_modules[genes_and_modules$Modules %in% cor_sets,]
+selected_modules <- selected_modules[order(selected_modules$Modules, decreasing = T),]
+rownames(selected_modules) <- 1:nrow(selected_modules)
+
+selected_modules_add <- merge(convertID, selected_modules, by = 1)
+selected_modules_add <- selected_modules_add[order(selected_modules_add$Modules, decreasing = T),]
+
+colnames(selected_modules_add)[4] <- "modules"
+
+# ORA
+module_fix <- function(module, module_name){
+    if (nrow(module) > 0){
+        module$Category <- module_name
+        module <- module[c("Category", "ID",
+                           "Description", 
+                           "RichFactor",
+                           "qvalue", 
+                           "Count")]
+    } else {
+        
+        module <- NULL    
+    }
+    
+    module <- module[module$RichFactor > 0.1,]
+    return(module)
+}
+
+enrich_all_ent <- function(genes, padj){
+    KEGG.module <- enrichKEGG(genes, organism = "mmu", qvalueCutoff = padj)
+    KEGG.module <- as.data.frame(KEGG.module)
+    KEGG.module <- module_fix(KEGG.module, "KEGG")
+    
+    Reactome.module <- enrichPathway(genes, organism = "mouse", qvalueCutoff = padj)
+    Reactome.module <- as.data.frame(Reactome.module)
+    Reactome.module <- module_fix(Reactome.module, "Reactome")
+    
+    WP.module <- enrichWP(genes, organism = "Mus musculus")
+    WP.module <- as.data.frame(WP.module)
+    WP.module <- WP.module[WP.module$qvalue < padj,]
+    WP.module <- module_fix(WP.module, "WikiPathways")
+    
+    ent_res <- rbind(KEGG.module, WP.module,  Reactome.module)
+    
+    return(ent_res)
+}
+
+enrich_all_ens <- function(genes, padj){
+    
+    GO.module <- enrichGO(genes, 
+                          OrgDb = org.Mm.eg.db, 
+                          keyType = "ENSEMBL", 
+                          ont = "ALL", 
+                          qvalueCutoff = padj, minGSSize = 10)
+    GO.module <- as.data.frame(GO.module)
+    GO.module <- module_fix(GO.module, "GO")
+    
+    H.module <- enricher(genes, 
+                         TERM2GENE = pathwaysH[c("gs_name", "ensembl_gene")], 
+                         qvalueCutoff = padj, minGSSize = 10)
+    H.module <- as.data.frame(H.module)
+    H.module <- module_fix(H.module, "MSigDB: HALLMARK")
+    
+    enrich.df <- rbind(GO.module, H.module)
+    
+    return(enrich.df)
+}
+
+ens_greenyellow_1 <- selected_modules_add$ENSEMBL[selected_modules_add$modules == "greenyellow"]
+ent_greenyellow_2 <- selected_modules_add$ENTREZID[selected_modules_add$modules == "greenyellow"]
+
+ens_sienna3_1 <- selected_modules_add$ENSEMBL[selected_modules_add$modules == "sienna3"]
+ent_sienna3_2 <- selected_modules_add$ENTREZID[selected_modules_add$modules == "sienna3"]
+
+ens_pink_1 <- selected_modules_add$ENSEMBL[selected_modules_add$modules == "pink"]
+ent_pink_2 <- selected_modules_add$ENTREZID[selected_modules_add$modules == "pink"]
+
+ens_royalblue_1 <- selected_modules_add$ENSEMBL[selected_modules_add$modules == "royalblue"]
+ent_royalblue_2 <- selected_modules_add$ENTREZID[selected_modules_add$modules == "royalblue"]
+
+enrich_1 <- rbind(enrich_all_ens(c(ens_greenyellow_1, ens_sienna3_1), 0.05), 
+                              enrich_all_ent(c(ent_greenyellow_2, ent_sienna3_2), 0.05))
+rownames(enrich_1) <- 1:nrow(enrich_1)
+
+enrich_2 <- rbind(enrich_all_ens(c(ens_pink_1, ens_royalblue_1), 0.05), 
+                  enrich_all_ent(c(ent_pink_2, ent_royalblue_2), 0.05))
+rownames(enrich_2) <- 1:nrow(enrich_2)
+```
+
+```{r}
+#| echo: false
+datatable(selected_modules_add[selected_modules_add$modules %in% c("greenyellow", "sienna3"),],
+          caption = "Table 13. Genes included to modules positively associated with melanoma group.",
+          style = "bootstrap5",
+          extensions = 'Buttons', 
+          options = list(dom = 'lBfrtip',
+                         buttons = c('csv', 'excel')))
+```
+
+```{r}
+#| echo: false
+datatable(selected_modules_add[!selected_modules_add$modules %in% c("greenyellow", "sienna3"),],
+          caption = "Table 14. Genes included to modules negatively associated with melanoma group.",
+          style = "bootstrap5",
+          extensions = 'Buttons', 
+          options = list(dom = 'lBfrtip',
+                         buttons = c('csv', 'excel')))
+```
+
+#### Over-representation analysis
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+datatable(enrich_1, 
+          caption = "Table 15.  Over-presentation analysis results of modules positively linked to M group.",
+          style = "bootstrap5", 
+          extensions = 'Buttons', 
+          options = list(dom = 'lBfrtip',
+                         buttons = c('csv', 'excel')))
+```
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+datatable(enrich_2, 
+          caption = "Table 16.  Over-presentation analysis results of modules negatively linked to M group.",
+          style = "bootstrap5", 
+          extensions = 'Buttons', 
+          options = list(dom = 'lBfrtip',
+                         buttons = c('csv', 'excel')))
+```
+
+#### Hub genes analysis and visualization
+
+```{r}
+#| include: false
+hubs <- get_hubs_gcn(final_exp, net)
+
+selected_hubs <- hubs[hubs$Module %in% cor_sets,]
+rownames(selected_hubs) <- 1:nrow(selected_hubs)
+
+selected_hubs_add <- merge(convertID, selected_hubs, by = 1)
+selected_hubs_add <- selected_hubs_add[order(selected_hubs_add$Module, decreasing = T),]
+rownames(selected_hubs_add) <- 1:nrow(selected_hubs_add)
+
+edges_filtered_1 <- get_edge_list(net, 
+                                  module = cor_sets[1],
+                                  filter = TRUE,
+                                  method = "optimalSFT",
+                                  r_optimal_test = 0.7)
+
+net_plot_1 <- plot_gcn(
+    edgelist_gcn = edges_filtered_1, 
+    net = net, 
+    color_by = "module", 
+    hubs = hubs,
+    top_n_hubs = 5 
+) + ggtitle("greenyellow")
+
+edges_filtered_2 <- get_edge_list(net, 
+                                  module = cor_sets[2],
+                                  filter = TRUE,
+                                  method = "optimalSFT",
+                                  r_optimal_test = 0.7)
+
+net_plot_2 <- plot_gcn(
+    edgelist_gcn = edges_filtered_2, 
+    net = net, 
+    color_by = "module", 
+    hubs = hubs,
+    top_n_hubs = 5 
+) + ggtitle("sienna3")
+
+edges_filtered_3 <- get_edge_list(net, 
+                                  module = cor_sets[3],
+                                  filter = TRUE,
+                                  method = "optimalSFT",
+                                  r_optimal_test = 0.7)
+
+net_plot_3 <- plot_gcn(
+    edgelist_gcn = edges_filtered_3, 
+    net = net, 
+    color_by = "module", 
+    hubs = hubs,
+    top_n_hubs = 5 
+) + ggtitle("pink")
+
+edges_filtered_4 <- get_edge_list(net, 
+                                  module = cor_sets[4],
+                                  filter = TRUE,
+                                  method = "optimalSFT",
+                                  r_optimal_test = 0.7)
+
+net_plot_4 <- plot_gcn(
+    edgelist_gcn = edges_filtered_4, 
+    net = net, 
+    color_by = data.frame(geneid = unique(c(as.character(edges_filtered_4$Var1), as.character(edges_filtered_4$Var2))), color = "black"), 
+    hubs = hubs,
+    top_n_hubs = 5 
+) + ggtitle("royalblue")
+
+net_plot <- ggarrange(net_plot_1, net_plot_2, net_plot_3, net_plot_4)
+```
+
+```{r}
+#| echo: false
+datatable(selected_hubs_add[selected_hubs_add$Module %in% c("greenyellow", "sienna3"),], 
+          caption = "Table 17. Hub genes linked to modules positively asssociated with M group",
+          style = "bootstrap5", 
+          extensions = 'Buttons', 
+          options = list(dom = 'lBfrtip',
+                         buttons = c('csv', 'excel')))
+```
+
+```{r}
+#| echo: false
+datatable(selected_hubs_add[!selected_hubs_add$Module %in% c("greenyellow", "sienna3"),], 
+          caption = "Table 18. Hub genes linked to modules negatively asssociated with M group",
+          style = "bootstrap5", 
+          extensions = 'Buttons', 
+          options = list(dom = 'lBfrtip',
+                         buttons = c('csv', 'excel')))
+```
+
+```{r fig.height=10, fig.width=10}
+#| echo: false
+#| message: false
+#| warning: false
+download_this(
+  net_plot,
+  output_name = "net_plot",
+  output_extension = ".pdf",
+  button_label = "PDF",
+  button_type = "primary"
+)
+```
+
+```{r fig.height=10, fig.width=10}
+#| echo: false
+#| message: false
+#| warning: false
+#| fig-cap: "Figure 28. Corelation network of co-expressed genes modules positively and negatively linked to M group."
+net_plot
+```
+
+#### STRING analysis of modules
+
+```{r}
+#| include: false
+string_db <- STRINGdb$new(version = "12.0", species = 10090, score_threshold = 100)
+
+mapped_1 <- string_db$map(selected_modules_add[selected_modules_add$modules %in% c("greenyellow", "sienna3"),], "ENSEMBL", removeUnmappedRows = T)
+mapped_2 <- string_db$map(selected_modules_add[selected_modules_add$modules %in% c("pink", "royalblue"),], "ENSEMBL", removeUnmappedRows = T)
+
+# pdf("string_1.pdf", width = 10, height = 10)
+# string_db$plot_network(mapped_1$STRING_id, required_score = 400)
+# dev.off()
+
+# pdf("string_2.pdf", width = 10, height = 10)
+# string_db$plot_network(mapped_2$STRING_id, required_score = 400)
+# dev.off()
+```
+
+[Figure 29](figures/string_1.pdf)
+
+[Figure 29 - STRING website](https://string-db.org/cgi/network?taskId=bSgjgDkvray5&sessionId=b4tWjn72YI6o)
+
+```{r fig.height=10, fig.width=10}
+#| echo: false
+#| message: false
+#| warning: false
+#| fig-cap: "Figure 29. STRING database network plot obtained using DEG positively linked to M group."
+string_db$plot_network(mapped_1$STRING_id, required_score = 400)
+```
+
+[Figure 30](figures/string_2.pdf)
+
+[Figure 30 - STRING website](https://string-db.org/cgi/network?taskId=bemciZpRn4fZ&sessionId=b4tWjn72YI6o)
+
+```{r fig.height=10, fig.width=10}
+#| echo: false
+#| message: false
+#| warning: false
+#| fig-cap: "Figure 30. STRING database network plot obtained using DEG negatively linked to M group."
+string_db$plot_network(mapped_2$STRING_id, required_score = 400)
+```
