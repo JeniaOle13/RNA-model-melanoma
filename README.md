@@ -14,7 +14,7 @@ This repository contains the complete analytical workflow and results for our in
 -   Potential mechanisms of probiotic-mediated anti- or pro-tumor effects.
 
 ## Repository structure
-RNA-seq-report_files/ # Files for Quarto report
+`RNA-seq-report_files/`       # Files for Quarto report
 
 `data/`
 `├── htseq/*.counts`          # HTSeq counts data
