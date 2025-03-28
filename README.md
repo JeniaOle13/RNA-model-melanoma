@@ -16,24 +16,24 @@ This repository contains the complete analytical workflow and results for our in
 ## Repository structure
 RNA-seq-report_files/ # Files for Quarto report
 
-data/
-├── htseq/*.counts         # `HTSeq` counts data
+`data/`
+`├── htseq/*.counts`          # HTSeq counts data
 
-├── metadata.tsv            # Metadata
+`├── metadata.tsv`            # Metadata
 
-├── ensbl2geneid.tsv     # Mapping ENSEMBL to SYMBOL file
+`├── ensbl2geneid.tsv`        # Mapping ENSEMBL to SYMBOL file
 
-├── cell_marker_mouse.csv # Cell Markers 2.0 for *Mus musculus*
+`├── cell_marker_mouse.csv`   # Cell Markers 2.0 for *Mus musculus*
 
-└── counts.tsv                # Read counts data
+`└── counts.tsv`              # Read counts data
 
-figures/ # Figures for Quarto report
+`figures/`                    # Figures for Quarto report
 
-snakefiles/ # `Snakemake` pipeline
+`snakefiles/`                 # Snakemake pipeline
 
-RNA-seq-report.html # Quarto `HTML` file
+`RNA-seq-report.html`         # Quarto `HTML` file
 
-RNA-seq-report.qmd # Quarto `qmd` file
+`RNA-seq-report.qmd`          # Quarto `qmd` file
 
 ## Data Availability
 Raw sequencing data is available uned BioProject [PRJNA1214537](https://www.ncbi.nlm.nih.gov/bioproject/PRJNA1214537/).
