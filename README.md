@@ -39,7 +39,7 @@ This repository contains the complete analytical workflow and results for our in
 Raw sequencing data is available uned BioProject [PRJNA1214537](https://www.ncbi.nlm.nih.gov/bioproject/PRJNA1214537/).
 
 ## Contacts
-For any questions regarding this work, please contact us at jeniaole13@gmail.com
+For any questions regarding this work, please contact us at jeniaole01@gmail.com
 
 ## Funding
 Financial support for this study was provided by the Russian Science Foundation under the grant #22-75-10029 ([https://rscf.ru/project/22-75-10029/](https://rscf.ru/project/22-75-10029/)).
