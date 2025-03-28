@@ -2,7 +2,7 @@
 
 ## Overview
 
-This repository contains the complete analytical workflow and results for our investigation *Bifidobacterium adolescentis* 150 and *Lactobacillus rhamnosus* K32 influence gene expression patterns in a murine melanoma  B16-F1 using bulk RNA-seq.
+This repository contains the complete analytical workflow and results for our investigation *Bifidobacterium adolescentis* 150 and *Lacticaseibacillus rhamnosus* K32 influence gene expression patterns in a murine melanoma  B16-F1 using bulk RNA-seq.
 
 🔗 **Access the full study report:**  [https://jeniaole13.github.io/model-melanoma/](https://jeniaole13.github.io/model-melanoma/)
 
