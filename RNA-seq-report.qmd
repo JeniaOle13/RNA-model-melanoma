@@ -5,15 +5,12 @@ editor: visual
 ---
 
 # Material and methods
-
 ## RNA expraction and sequencing
-
 <p style="text-align: justify;">
 Total RNA was isolated using the RNeasy Plant Mini Kit (QIAGEN, Germany) following the manufacturer's protocol. To eliminate potential DNA contamination, the RNA was further treated with the TURBO DNA-free Kit (Thermo Fisher Scientific, USA) in a 50 µL reaction volume. Purification was performed using Agencourt RNA Clean XP beads (Beckman Coulter, USA). RNA concentration and integrity were evaluated using the Quantitative RiboGreen RNA Assay (Thermo Fisher Scientific) and the RNA 6000 Pico Kit (Agilent Technologies, USA). RNA libraries were constructed using the NEBNext Poly(A) mRNA Magnetic Isolation Module followed by the KAPA RNA Hyper Kit (Roche, Switzerland), adhering to the manufacturer's instructions. Final library purification was carried out with KAPA HyperPure Beads (Roche, Switzerland). Library fragment size distribution and purity were assessed using the High Sensitivity DNA Kit (Agilent Technologies). Quantification was performed with the Quant-iT DNA Assay Kit, High Sensitivity (Thermo Fisher Scientific). Equimolar pools of each library (10 pM) were subjected to high-throughput sequencing on the Illumina HiSeq 2500 platform using paired-end reads (2 × 100 bp) with a 2% PhiX spike-in control.
 <p>
 
 ## Bioinformatics analysis
-
 <p style="text-align: justify;">
 Initial quality assessment of murine transcriptomic data was performed using FastQC (v0.12.1), with aggregated reports generated via MultiQC (v1.27.1) \[Ewels et al., 2016\]. Raw reads were processed using fastp (v0.23.4) to remove low-quality sequences \[Chen et al., 2018\]. Read alignment was subsequently conducted with STAR (v2.7.11) \[Dobin et al., 2013\] against the *Mus musculus* reference genome (GENCODE GRCm39.vM36) using the annotation file gencode.vM36.chr_patch_hapl_scaff.annotation.gtf, followed by gene-level quantification with HTSeq-count (v2.0.5) \[Anders et al., 2015\]. Differential gene expression analysis between experimental groups was performed using DESeq2 (v1.44.0) \[Love et al., 2014\]. For comprehensive functional interpretation, we implemented gene-set enrichment analysis (GSEA) through fgsea (v1.31.6) \[Korotkevich et al., 2016\] and clusterProfiler (v4.12.6) \[Wu et al., 2021\], utilizing both the MSigDB \[Castanza et al., 2023\] and CellMarker 2.0 \[Hu et al., 2023\] databases. Immune cell enrichment patterns were further assessed via Gene Set Variation Analysis (GSVA) \[Hänzelmann et al., 2013\]. Immune cell populations were deconvoluted from tumor transcriptome profiles using the mMCP-counter algorithm \[Petitprez et al., 2020\]. Co-expression network analysis was performed using BioNERO (v1.12.0) \[Almeida-Silva et al., 2022\], employing signed hybrid network topology with Pearson correlation metrics. Potential batch effects were addressed using the removeBatchEffect function from the limma package \[Ritchie et al., 2015\]. Functional annotation of co-expressed gene modules included over-representation analysis against multiple pathway databases including MSigDB, KEGG \[Kanehisa et al., 2025\], Reactome \[Milacic et al., 2024\], and WikiPathways \[Agrawal et al., 2024\]. Protein-protein interaction networks were reconstructed using the STRING database v12.0 through the STRINGdb (v2.16.4) Bioconductor package \[Szklarczyk et al., 2023\]. Visualization of analytical results was achieved using a combination of pheatmap (v1.0.12) for heatmap generation, ggplot2 (v3.5.1) for general plotting, and EnhancedVolcano (v1.22.0) for specialized visualization of differential expression results. The entire analytical workflow was implemented in R (v4.4.2).
 </p>
@@ -30,147 +27,32 @@ flowchart LR
     I --> K{"GSEA"}
     J --> L{"ORA"} & N{"STRING"}
     G --> V{"GSVA"}
-
-     A:::Aqua
-     B:::Aqua
-     B:::Pine
-     C:::Pine
-     E:::Pine
-     D:::Pine
-     F:::Pine
-     G:::Aqua
-     I:::Pine
-     Z:::Pine
-     W:::Pine
-     H:::Pine
-     J:::Pine
-     K:::Pine
-     L:::Pine
-     N:::Pine
-     V:::Pine
-    classDef Aqua stroke-width:1px, stroke-dasharray:none, stroke:#46EDC8, fill:#DEFFF8, color:#378E7A
-    classDef Pine stroke-width:1px, stroke-dasharray:none, stroke:#254336, fill:#27654A, color:#FFFFFF
 ```
 
 ## References
-
 1)  [Ewels, Philip, et al. "MultiQC: summarize analysis results for multiple tools and samples in a single report." Bioinformatics 32.19 (2016): 3047-3048.](https://academic.oup.com/bioinformatics/article/32/19/3047/2196507)
-
 2)  [Chen, Shifu, et al. "fastp: an ultra-fast all-in-one FASTQ preprocessor." Bioinformatics 34.17 (2018): i884-i890.](https://academic.oup.com/bioinformatics/article/34/17/i884/5093234)
-
 3)  [Dobin, Alexander, et al. "STAR: ultrafast universal RNA-seq aligner." Bioinformatics 29.1 (2013): 15-21.](https://academic.oup.com/bioinformatics/article/29/1/15/272537)
-
 4)  [Anders, Simon, Paul Theodor Pyl, and Wolfgang Huber. "HTSeq—a Python framework to work with high-throughput sequencing data." Bioinformatics 31.2 (2015): 166-169](https://academic.oup.com/bioinformatics/article/31/2/166/2366196)
-
 5)  [Love, Michael I., Wolfgang Huber, and Simon Anders. "Moderated estimation of fold change and dispersion for RNA-seq data with DESeq2." Genome biology 15 (2014): 1-21.](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-014-0550-8)
-
 6)  [Hu, Congxue, et al. "CellMarker 2.0: an updated database of manually curated cell markers in human/mouse and web tools based on scRNA-seq data." Nucleic acids research 51.D1 (2023): D870-D876.](https://academic.oup.com/nar/article/51/D1/D870/6775381)
-
 7)  [Hänzelmann, Sonja, Robert Castelo, and Justin Guinney. "GSVA: gene set variation analysis for microarray and RNA-seq data." BMC bioinformatics 14 (2013): 1-15.](https://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-14-7)
-
 8)  [Petitprez, Florent, et al. "The murine Microenvironment Cell Population counter method to estimate abundance of tissue-infiltrating immune and stromal cell populations in murine samples using gene expression." Genome medicine 12 (2020): 1-15.](https://genomemedicine.biomedcentral.com/articles/10.1186/s13073-020-00783-w)
-
 9)  [Almeida-Silva, Fabricio, and Thiago M. Venancio. "BioNERO: an all-in-one R/Bioconductor package for comprehensive and easy biological network reconstruction." Functional & Integrative Genomics 22.1 (2022): 131-136.](https://link.springer.com/article/10.1007/s10142-021-00821-9)
-
 10) [Ritchie, Matthew E., et al. "limma powers differential expression analyses for RNA-sequencing and microarray studies." Nucleic acids research 43.7 (2015): e47-e47.](https://academic.oup.com/nar/article/43/7/e47/2414268)
-
 11) [Kanehisa, Minoru, et al. "KEGG: biological systems database as a model of the real world." Nucleic Acids Research 53.D1 (2025): D672-D677.](https://academic.oup.com/nar/article/53/D1/D672/7824602)
-
 12) [Milacic, Marija, et al. "The reactome pathway knowledgebase 2024." Nucleic acids research 52.D1 (2024): D672-D678.](https://academic.oup.com/nar/article/52/D1/D672/7369850)
-
 13) [Agrawal, Ayushi, et al. "WikiPathways 2024: next generation pathway database." Nucleic acids research 52.D1 (2024): D679-D689.](https://academic.oup.com/nar/article/52/D1/D679/7369835)
-
 14) [Szklarczyk, Damian, et al. "The STRING database in 2023: protein–protein association networks and functional enrichment analyses for any sequenced genome of interest." Nucleic acids research 51.D1 (2023): D638-D646.](https://academic.oup.com/nar/article/51/D1/D638/6825349)
 
-## DNA extraction and sequencing
-
-[RNeasy Plant Mini Kit (QIAGEN, German)](https://www.qiagen.com/us/products/discovery-and-translational-research/dna-rna-purification/rna-purification/total-rna/rneasy-plant-mini-kit)
-
-[TURBO DNA-free kit (Thermo Fisher Scientific, USA)](https://www.thermofisher.com/order/catalog/product/AM1907)
-
-[Agencourt RNA Clean XP (Beckman Coulter, Brea, USA)](https://www.beckman.com/reagents/genomic/cleanup-and-size-selection/rna-and-cdna)
-
-[Quantitative RiboGreen RNA assay (Thermo Fisher Scientific)](https://www.thermofisher.com/order/catalog/product/R11490)
-
-[RNA 6000 Pico Kit (Agilent Technologies, Santa Clara, CA, USA)](https://klad.skygen.com/catalog/nabor-reagentov-dlya-analiza-rnk-agilent-rna-6000-pico-kit-275-obraztsov-art-5067-1513-agilent-techn/)
-
-[NEBNext Poly(A) mRNA Magnetic Isolation Module](https://www.neb.com/en/products/e7490-nebnext-polya-mrna-magnetic-isolation-module?srsltid=AfmBOoq8wIoCU8SRn9NJcddrJdZwqpVMqaDUsTRbPa0hajUpjT4arv_S)
-
-[KAPA RNA Hyper Kit (Roche, Switzerland)](https://rochesequencingstore.com/catalog/kapa-rna-hyperprep-kit/)
-
-[KAPPA HyperPure beads (Roche, Switzerland)](https://sequencing.roche.com/global/en/products/group/kapa-hyperpure-beads.html)
-
-[Highly Sensitive DNA Kit (Agilent Technologies)](https://agilent-lab.ru/Nabor-DNK-visokoy-chuvstvitelnosti-Agilent_5067-4626)
-
-[Quant-iT DNA Assay Kit, High Sensitivity (Thermo Fisher Scientific)](https://www.thermofisher.com/order/catalog/product/Q33120)
-
-[Illumina HiSeq 2500](https://support.illumina.com/sequencing/sequencing_instruments/hiseq_2500.html)
-
-## Databases
-
-GENCODE: <https://www.gencodegenes.org/mouse/>
-
-MSigDB: <https://www.gsea-msigdb.org/gsea/msigdb>
-
-KEGG: <https://www.genome.jp/kegg/>
-
-Reactome: <https://reactome.org/>
-
-Wiki pathways: <https://www.wikipathways.org/>
-
-CellMarker 2.0: <http://www.bio-bigdata.center/>
-
-STRING: <https://string-db.org/>
-
-## Tools
-
-FastQC: <https://github.com/s-andrews/FastQC>
-
-MultiQC: <https://github.com/MultiQC/MultiQC>
-
-fastp: <https://github.com/OpenGene/fastp>
-
-STAR: <https://github.com/alexdobin/STAR>
-
-HTSeq: <https://github.com/simon-anders/htseq>
-
-DESeq2: <https://github.com/thelovelab/DESeq2>
-
-fgsea: <https://github.com/alserglab/fgsea>
-
-clusterProfiler: <https://guangchuangyu.github.io/software/clusterProfiler/>
-
-GSVA: <https://bioconductor.org/packages/release/bioc/html/GSVA.html>
-
-mMCP-counter: <https://github.com/cit-bioinfo/mMCP-counter>
-
-biomaRt: <https://github.com/grimbough/biomaRt>
-
-BioNERO: <https://github.com/almeidasilvaf/BioNERO>
-
-limma: <https://bioconductor.org/packages/release/bioc/html/limma.html>
-
-STRINGdb: <https://www.bioconductor.org/packages/release/bioc/html/STRINGdb.html>
-
-pheatmap: <https://github.com/raivokolde/pheatmap>
-
-ggplot2: <https://github.com/tidyverse/ggplot2>
-
-EnhancedVolcano: <https://github.com/kevinblighe/EnhancedVolcano>
-
-R: <https://www.r-project.org/>
-
-## Raw data
-
-PRJNA1214537: <https://www.ncbi.nlm.nih.gov/bioproject/PRJNA1214537/>
-
 # Results
-
 ```{r}
 #| message: false
 #| warning: false
 #| include: false
 
+library(lmerTest)
+library(multcomp)
 library(vegan)
 library(fgsea)
 library(limma)
@@ -244,7 +126,6 @@ convertID <- merge(SYMBOL, ENTREZID)
 ```
 
 ## Experimental Design and Sample Overview
-
 <p style="text-align: justify;">
 The analysis included a total of 14 transcriptomic samples representing three experimental groups: 1) melanoma (n=6); 2) melanoma supplemented with *Bifidobacterium adolescentis* 150 (n=6); and 3) melanoma supplemented with *Lacticaseibacillus rhamnosus* K32 (n=2) (Table 1). The study was conducted in two sequential replicates: the first replicate comprised only the melanoma and *B. adolescentis*-supplemented groups (n=8), while the second replicate incorporated all three experimental conditions (n=6). The genomes of the bacteria used in this experiment are available at the following links [GCF_001010915.1](https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_001010915.1/) and [GCF_000735255.1](https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_000735255.1/). For clarity in data interpretation, we introduced the following standardized codings:
 <p>
@@ -278,9 +159,8 @@ datatable(meta_data_d[-2],
 ```
 
 ## Quality control
-
 <p style="text-align: justify;">
-Following quality filtering with `fastp`, aggregated quality metrics were compiled using `MultiQC` to summarize the `FastQC` reports. As illustrated in Figure 1, the `MultiQC` quality profile indicates that the sequencing data maintained adequate overall quality. Post-filtering, approximately 198 million reads (mean ± SD: 14 ± 5 mln reads per sample) were retained for downstream analysis, with an average of 16 ± 7% of reads per sample removed during quality control (see Table 2 for detailed filtering statistics). Transcript abundance was quantified using the `HTSeq` tool. Figure 3 displays the distribution of HTSeq counts across all experimental samples. While no statistically significant differences in read counts were observed between experimental groups, batch effects significantly influenced read distribution (Figure 3). The resulting gene expression count matrix was normalized using the [median of ratios method](https://hbctraining.github.io/DGE_workshop/lessons/02_DGE_count_normalization.html), with normalized values presented in Table 4.
+Following quality filtering with `fastp`, aggregated quality metrics were compiled using `MultiQC` to summarize the `FastQC` reports. As illustrated in Figure 1, the `MultiQC` quality profile indicates that the sequencing data maintained adequate overall quality. Post-filtering, approximately 198 million reads (mean ± SD: 14 ± 5 million reads per sample) were retained for downstream analysis, with an average of 16 ± 7% of reads per sample removed during quality control (see Table 2 for detailed filtering statistics). Transcript abundance was quantified using the `HTSeq` tool. Figure 3 displays the distribution of HTSeq counts across all experimental samples. The resulting gene expression count matrix was normalized using the [median of ratios method](https://hbctraining.github.io/DGE_workshop/lessons/02_DGE_count_normalization.html), with normalized values presented in Table 4.
 <p>
 
 #### MiltiQC report
@@ -290,7 +170,6 @@ Following quality filtering with `fastp`, aggregated quality metrics were compil
 ![Figure 1. Summary MultiQC report.](figures/fastqc-status-check-heatmap.svg)
 
 #### Reads filtering by quality statistic
-
 ```{r}
 #| label: fastp filtered table
 #| echo: false
@@ -303,7 +182,6 @@ datatable(reads.counts,
 ```
 
 #### Mapping reads to reference counts
-
 ```{r}
 #| echo: false
 
@@ -341,19 +219,7 @@ download_this(
 counts_plot
 ```
 
-#### ANOVA
-
-```{r}
-#| echo: false
-#| message: false
-#| warning: false
-
-counts.aov <- aov(counts ~ batch + group, counts.df)
-summary(counts.aov)
-```
-
 #### Normalized counts table
-
 ```{r}
 #| echo: false
 #| message: false
@@ -377,7 +243,6 @@ datatable(COU.add,
 ```
 
 ## Principal component analysis
-
 <p style="text-align: justify;">
 Principal component analysis ([PCA](https://en.wikipedia.org/wiki/Principal_component_analysis)) was employed as a linear dimensional reduction technique for exploratory data analysis and visualization. Prior to `PCA`, the expression data underwent variance-stabilizing transformation ([VST](https://en.wikipedia.org/wiki/Variance-stabilizing_transformation)), which derives stable variance estimates from fitted dispersion-mean relationships. This transformation processes count data normalized by size factors, generating a matrix of approximately homeostatic values characterized by constant variance across the range of mean expression levels, while simultaneously accounting for library size differences. The transformed data were visualized through bi-dimensional projection of the first two principal components (Figure 4), with the proportion of explained variance for each component detailed in Figure 5. Permutation multivariate analysis of variance ([PERMANOVA](https://en.wikipedia.org/wiki/Permutational_analysis_of_variance)) revealed statistically significant associations between expression profiles and batch effects, while no significant relationships with experimental groups were detected.
 <p>
@@ -446,7 +311,6 @@ PERMANOVA
 ```
 
 ## Differential expression analysis
-
 <p style="text-align: justify;">
 Differential expression analysis was conducted using the `DESeq2` package, employing the model formula `~ batch + group` to account for batch-related dispersion effects. The analysis revealed positive log2 fold change (lfc) values associated with both *B. adolescentis* 150 and *L. rhamnosus* K32 supplementation groups, while negative values corresponded to the untreated melanoma control group. `DESeq2` performs differential expression analysis by fitting generalized linear models to negative binomial distributed counts and evaluating linear contrasts between experimental groups. Our results demonstrated 3 significantly up-regulated and 16 down-regulated genes in the `M_BIF` group compared to the `M` control group. For the `M_LAC` comparison, 21 differentially expressed genes were identified relative to the `M` group, while no significant changes were observed in the reverse comparison. When directly comparing bacterial supplementation groups, 39 genes were associated with `M_BIF` and 116 with `M_LAC`. Differentially expressed genes were determined using stringent thresholds (adjusted p-value \< 0.05, \|lfc\| \> 1). Complete statistical results of the differential analysis are presented in Tables 4-6. Visual representation of the results through volcano plots (Figures 6-8) effectively illustrates the relationship between statistical significance (-log10 p-value) and magnitude of expression changes (lfc) across all comparisons.
 <p>
@@ -535,7 +399,6 @@ VolcanoPlot3 <- EnhancedVolcano(DEG_BIF_LAC_add,
 ```
 
 #### M_BIF vs M
-
 ```{r}
 #| echo: false
 #| message: false
@@ -571,7 +434,6 @@ VolcanoPlot1
 ```
 
 #### M_LAC vs M
-
 ```{r}
 #| echo: false
 #| message: false
@@ -606,7 +468,6 @@ VolcanoPlot2
 ```
 
 #### M_BIF vs M_LAC
-
 ```{r}
 #| echo: false
 #| message: false
@@ -641,13 +502,11 @@ VolcanoPlot3
 ```
 
 ## Gene set enrichment analysis
-
 <p style="text-align: justify;">
 Gene Set Enrichment Analysis ([GSEA](https://en.wikipedia.org/wiki/Gene_set_enrichment_analysis)) was employed to evaluate whether predefined gene sets exhibited statistically significant and concordant differences between biological states (e.g., phenotypic groups). This computational approach was implemented using multiple databases, enabling comprehensive identification of biological functions associated with the experimental conditions. For this analysis, we specifically utilized the HALLMARK `MSigDB` gene sets. The complete GSEA results are presented in Figure 9 and Tables 7-9. To delineate cell-type-specific expression patterns, we performed marker analysis using the Mouse `Cell Marker 2.0` database, with results visualized in Figure 10 and detailed in Tables 10-12. Complementary to this, Gene Set Variation Analysis (`GSVA`) was conducted to examine HALLMARK `MSigDB` gene sets in a sample-oriented manner (Figures 11-16). The investigation was extended to immune cell profiling through two complementary approaches: `mMCP-counter` was implemented for broad immune cell type quantification (Figure 17), while`GSVA` was specifically applied to assess critical immune parameters including M1/M2 macrophage polarization ratios and CD8+ T cell abundance (Figures 18-21).
 <p>
 
 #### MSigDb Hallmark
-
 ```{r}
 #| message: false
 #| warning: false
@@ -727,7 +586,6 @@ heatmap.hallmark <- pheatmap::pheatmap(as.matrix(fgsea.all), cutree_rows = 7, cu
 ```
 
 ##### M_BIF vs M
-
 ```{r}
 #| echo: false
 datatable(fgsea.bif.filter[-8], 
@@ -739,7 +597,6 @@ datatable(fgsea.bif.filter[-8],
 ```
 
 ##### M_LAC vs M
-
 ```{r}
 #| echo: false
 datatable(fgsea.lac.filter[-8], 
@@ -773,7 +630,6 @@ heatmap.hallmark
 ```
 
 #### Cell Marker 2.0
-
 ```{r}
 #| message: false
 #| warning: false
@@ -881,7 +737,6 @@ heatmap.immune <- pheatmap::pheatmap(t(cells.all.s), display_numbers = T, cutree
 ```
 
 ##### M_BIF vs M
-
 ```{r}
 #| echo: false
 datatable(cells.bif_add, 
@@ -893,7 +748,6 @@ datatable(cells.bif_add,
 ```
 
 ##### M_LAC vs M
-
 ```{r}
 #| echo: false
 datatable(cells.lac_add, 
@@ -905,7 +759,6 @@ datatable(cells.lac_add,
 ```
 
 ##### M_BIF vs M_LAC
-
 ```{r}
 #| echo: false
 datatable(cells.bif.lac_add, 
@@ -927,7 +780,6 @@ heatmap.immune
 ```
 
 #### Specific HALLMARK pathways levels
-
 ```{r}
 #| include: false
 exp.data <- vst(counts(ddsHTSeq))
@@ -1173,9 +1025,7 @@ summary(aov(HALLMARK_EPITHELIAL_MESENCHYMAL_TRANSITION ~ group + batch, data = s
 ```
 
 #### Immune cell types deconvolution
-
 ###### mMCP-counter
-
 ```{r}
 #| message: false
 #| warning: false
@@ -1227,7 +1077,6 @@ summary(aov(`T cells` ~ group + batch, data = immune_cells.df))
 ```
 
 #### GSVA
-
 ```{r}
 #| message: false
 #| warning: false
@@ -1430,13 +1279,11 @@ summary(aov(CD8 ~ group + batch, data = ssgsea_scores_2))
 ```
 
 ## Co-expression analysis
-
 <p style="text-align: justify;">
 [Gene co-expression analysis](https://en.wikipedia.org/wiki/Gene_co-expression_network) was performed to identify functionally related gene clusters and investigate their potential associations with phenotypic traits. Prior to analysis, technical batch effects were removed from the expression matrix using the removeBatchEffect function implemented in the `limma` package. `PCA` of the batch-corrected data showed similar sample clustering patterns to the uncorrected dataset (Figures 22 and 23), with `PERMANOVA` confirming the effective removal of batch effects while revealing no significant associations with experimental groups. The `BioNERO` package identified several co-expression modules showing differential associations with experimental conditions. Notably, the greenyellow and sienna3 modules demonstrated positive correlations with the untreated melanoma group, while the pink and royalblue modules showed negative associations (Figures 24-27, Tables 13 and 14). Functional characterization through [over-representation analysis](https://en.wikipedia.org/wiki/Pathway_analysis) revealed significant biological pathways enriched in these modules (Tables 15 and 16). Hub gene analysis identified key regulatory elements within each module (Tables 17 and 18), with protein-protein interaction networks visualized for selected modules (Figure 28). Additional network characterization using `STRING` database highlighted potential functional relationships among module genes (Figures 29 and 30).
 <p>
 
 #### Batch correction
-
 ```{r}
 #| include: false
 vsd_2 <- vst(ddsHTSeq, blind = F)
@@ -1504,7 +1351,6 @@ PERMANOVA
 ```
 
 #### Net construction
-
 ```{r}
 #| include: false
 final_exp <- exp_preprocess(
@@ -1619,7 +1465,6 @@ expression_plot <- ggarrange(expression_plot_1, expression_plot_2, expression_pl
 [Figure 26](figures/module_trait_cor_plot.pdf)
 
 #### Co-expressed modules linked to M group
-
 ```{r fig.height=8, fig.width=6}
 #| echo: false
 #| fig-cap: "Figure 26. Co-expression module association with experimental groups."
@@ -1755,7 +1600,6 @@ datatable(selected_modules_add[!selected_modules_add$modules %in% c("greenyellow
 ```
 
 #### Over-representation analysis
-
 ```{r}
 #| echo: false
 #| message: false
@@ -1781,7 +1625,6 @@ datatable(enrich_2,
 ```
 
 #### Hub genes analysis and visualization
-
 ```{r}
 #| include: false
 hubs <- get_hubs_gcn(final_exp, net)
@@ -1894,7 +1737,6 @@ net_plot
 ```
 
 #### STRING analysis of modules
-
 ```{r}
 #| include: false
 string_db <- STRINGdb$new(version = "12.0", species = 10090, score_threshold = 100)
