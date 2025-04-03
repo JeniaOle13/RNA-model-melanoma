@@ -7,10 +7,10 @@ This repository contains the complete analytical workflow and results for our in
 🔗 **Access the full study report:**  [https://jeniaole13.github.io/RNA-model-melanoma/](https://jeniaole13.github.io/RNA-model-melanoma/)
 
 ## Key Findings
-
+-   Comparative analysis of transcriptional profiles between treatment groups.
 -   Identification of differentially expressed genes (DEGs) following probiotic treatment.
 -   Characterization of immune-related pathways modulated by probiotics.
--   Comparative analysis of transcriptional profiles between treatment groups.
+-   Immune cells counts prediction.
 -   Potential mechanisms of probiotic-mediated anti- or pro-tumor effects.
 
 ## Repository structure
