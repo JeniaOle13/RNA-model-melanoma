@@ -23,6 +23,7 @@ data/
 ├── cell_marker_mouse.csv   # Cell Markers 2.0 for *Mus musculus*
 └── counts.tsv              # Read counts data
 figures/                    # Figures for Quarto report
+README.md                   # Repository description file
 RNA-seq-report.html         # Quarto HTML file
 RNA-seq-report.qmd          # Quarto qmd file
 ```
