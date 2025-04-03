@@ -1,5 +1,4 @@
 ---
-title: "Bulk RNA-seq analysis of mice model melanoma"
 format: html
 editor: visual
 ---
@@ -51,8 +50,6 @@ flowchart LR
 #| warning: false
 #| include: false
 
-library(lmerTest)
-library(multcomp)
 library(vegan)
 library(fgsea)
 library(limma)
@@ -507,6 +504,7 @@ Gene Set Enrichment Analysis ([GSEA](https://en.wikipedia.org/wiki/Gene_set_enri
 <p>
 
 #### MSigDb Hallmark
+
 ```{r}
 #| message: false
 #| warning: false
@@ -608,7 +606,6 @@ datatable(fgsea.lac.filter[-8],
 ```
 
 ##### M_BIF vs M_LAC
-
 ```{r}
 #| echo: false
 datatable(fgsea.bif.lac.filter[-8], 
@@ -630,6 +627,7 @@ heatmap.hallmark
 ```
 
 #### Cell Marker 2.0
+
 ```{r}
 #| message: false
 #| warning: false
@@ -1284,6 +1282,7 @@ summary(aov(CD8 ~ group + batch, data = ssgsea_scores_2))
 <p>
 
 #### Batch correction
+
 ```{r}
 #| include: false
 vsd_2 <- vst(ddsHTSeq, blind = F)
