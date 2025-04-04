@@ -16,7 +16,7 @@ Effects of *B. adolescentis*  150:
 - Downregulated: immune cell markers.
 
 Effects of *L. rhamnosus* K32:
-- Upregulated: IFN-γ, IFN-α signaling, IL-6/JAK/STAT3 signaling; immune cell markers.
+- Upregulated: IFN-γ, IFN-α, IL-6/JAK/STAT3 signaling; immune cell markers.
 
 ## Repository structure
 ```
