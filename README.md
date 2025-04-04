@@ -7,11 +7,16 @@ This repository contains the complete analytical workflow and results for our in
 🔗 **Access the full study report:**  [https://jeniaole13.github.io/RNA-model-melanoma/](https://jeniaole13.github.io/RNA-model-melanoma/)
 
 ## Key Findings
--   Comparative analysis of transcriptional profiles between treatment groups.
--   Identification of differentially expressed genes (DEGs) following probiotic treatment.
--   Characterization of immune-related pathways modulated by probiotics.
--   Immune cells counts prediction.
--   Potential mechanisms of probiotic-mediated anti- or pro-tumor effects.
+Combined Effect of *B. adolescentis* 150 and *L. rhamnosus* K32: 
+- Upregulated: epithelial-mesenchymal transition (EMT), NF-κB/TNF-α signaling, hypoxia, IL-6/STAT5 signaling.
+- Downregulated: E2F targets, G2/M checkpoints.
+
+Effects of *B. adolescentis*  150
+- Upregulated: TGF-β signaling, WNT/β-catenin signaling.
+- Downregulated: immune cell markers.
+
+Effects of *L. rhamnosus* K32
+Upregulated: IFN-γ and IFN-α signaling, IL-6/JAK/STAT3 signaling; immune cell markers.
 
 ## Repository structure
 ```
