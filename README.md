@@ -12,11 +12,11 @@ Combined Effect of *B. adolescentis* 150 and *L. rhamnosus* K32:
 - Downregulated: E2F targets, G2/M checkpoints.
 
 Effects of *B. adolescentis*  150:
-- Upregulated: TGF-β signaling, WNT/β-catenin signaling.
+- Upregulated: TGF-β, WNT/β-catenin signaling.
 - Downregulated: immune cell markers.
 
 Effects of *L. rhamnosus* K32:
-- Upregulated: IFN-γ and IFN-α signaling, IL-6/JAK/STAT3 signaling; immune cell markers.
+- Upregulated: IFN-γ, IFN-α signaling, IL-6/JAK/STAT3 signaling; immune cell markers.
 
 ## Repository structure
 ```
