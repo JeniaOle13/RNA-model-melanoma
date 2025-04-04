@@ -8,7 +8,7 @@ This repository contains the complete analytical workflow and results for our in
 
 ## Key Findings
 Combined Effect of *B. adolescentis* 150 and *L. rhamnosus* K32: 
-- Upregulated: epithelial-mesenchymal transition (EMT), NF-κB/TNF-α signaling, hypoxia, IL-6/STAT5 signaling.
+- Upregulated: epithelial-mesenchymal transition (EMT), NF-κB/TNF-α signaling, hypoxia, IL-2/STAT5 signaling.
 - Downregulated: E2F targets, G2/M checkpoints.
 
 Effects of *B. adolescentis*  150:
