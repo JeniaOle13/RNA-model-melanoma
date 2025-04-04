@@ -22,7 +22,7 @@ Effects of *L. rhamnosus* K32:
 ```
 RNA-seq-report_files/       # Files for Quarto report
 data/
-├── htseq/*.counts          # HTSeq counts data
+├── htseq/                  # HTSeq counts data
 ├── metadata.tsv            # Metadata
 ├── ensbl2geneid.tsv        # Mapping ENSEMBL to SYMBOL file
 ├── cell_marker_mouse.csv   # Cell Markers 2.0 for *Mus musculus*
