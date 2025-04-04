@@ -11,12 +11,12 @@ Combined Effect of *B. adolescentis* 150 and *L. rhamnosus* K32:
 - Upregulated: epithelial-mesenchymal transition (EMT), NF-κB/TNF-α signaling, hypoxia, IL-6/STAT5 signaling.
 - Downregulated: E2F targets, G2/M checkpoints.
 
-Effects of *B. adolescentis*  150
+Effects of *B. adolescentis*  150:
 - Upregulated: TGF-β signaling, WNT/β-catenin signaling.
 - Downregulated: immune cell markers.
 
-Effects of *L. rhamnosus* K32
-Upregulated: IFN-γ and IFN-α signaling, IL-6/JAK/STAT3 signaling; immune cell markers.
+Effects of *L. rhamnosus* K32:
+- Upregulated: IFN-γ and IFN-α signaling, IL-6/JAK/STAT3 signaling; immune cell markers.
 
 ## Repository structure
 ```
