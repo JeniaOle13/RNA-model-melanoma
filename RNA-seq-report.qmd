@@ -11,7 +11,7 @@ Total RNA was isolated using the RNeasy Plant Mini Kit (QIAGEN, Germany) followi
 
 ## Bioinformatics analysis
 <p style="text-align: justify;">
-Initial quality assessment of murine transcriptomic data was performed using FastQC (v0.12.1), with aggregated reports generated via MultiQC (v1.27.1) \[Ewels et al., 2016\]. Raw reads were processed using fastp (v0.23.4) to remove low-quality sequences \[Chen et al., 2018\]. Read alignment was subsequently conducted with STAR (v2.7.11) \[Dobin et al., 2013\] against the *Mus musculus* reference genome (GENCODE GRCm39.vM36) using the annotation file gencode.vM36.chr_patch_hapl_scaff.annotation.gtf, followed by gene-level quantification with HTSeq-count (v2.0.5) \[Anders et al., 2015\]. Differential gene expression analysis between experimental groups was performed using DESeq2 (v1.44.0) \[Love et al., 2014\]. For comprehensive functional interpretation, we implemented gene-set enrichment analysis (GSEA) through fgsea (v1.31.6) \[Korotkevich et al., 2016\] and clusterProfiler (v4.12.6) \[Wu et al., 2021\], utilizing both the MSigDB \[Castanza et al., 2023\] and CellMarker 2.0 \[Hu et al., 2023\] databases. Immune cell enrichment patterns were further assessed via Gene Set Variation Analysis (GSVA) \[Hänzelmann et al., 2013\]. Immune cell populations were deconvoluted from tumor transcriptome profiles using the mMCP-counter algorithm \[Petitprez et al., 2020\]. Co-expression network analysis was performed using BioNERO (v1.12.0) \[Almeida-Silva et al., 2022\], employing signed hybrid network topology with Pearson correlation metrics. Potential batch effects were addressed using the removeBatchEffect function from the limma package \[Ritchie et al., 2015\]. Functional annotation of co-expressed gene modules included over-representation analysis against multiple pathway databases including MSigDB, KEGG \[Kanehisa et al., 2025\], Reactome \[Milacic et al., 2024\], and WikiPathways \[Agrawal et al., 2024\]. Protein-protein interaction networks were reconstructed using the STRING database v12.0 through the STRINGdb (v2.16.4) Bioconductor package \[Szklarczyk et al., 2023\]. Visualization of analytical results was achieved using a combination of pheatmap (v1.0.12) for heatmap generation, ggplot2 (v3.5.1) for general plotting, and EnhancedVolcano (v1.22.0) for specialized visualization of differential expression results. The entire analytical workflow was implemented in R (v4.4.2).
+Initial quality assessment of murine transcriptomic data was performed using FastQC (v0.12.1), with aggregated reports generated via MultiQC (v1.27.1) \[Ewels et al., 2016\]. Raw reads were processed using fastp (v0.23.4) to remove low-quality sequences \[Chen et al., 2018\]. Read alignment was subsequently conducted with STAR (v2.7.11) \[Dobin et al., 2013\] against the *Mus musculus* reference genome (GENCODE GRCm39.vM36) using the annotation file gencode.vM36.chr_patch_hapl_scaff.annotation.gtf, followed by gene-level quantification with HTSeq-count (v2.0.5) \[Anders et al., 2015\]. Differential gene expression analysis between experimental groups was performed using DESeq2 (v1.44.0) \[Love et al., 2014\]. For comprehensive functional interpretation, we implemented gene-set enrichment analysis (GSEA) through fgsea (v1.31.6) \[Korotkevich et al., 2016\] and clusterProfiler (v4.12.6) \[Wu et al., 2021\], utilizing both the MSigDB \[Castanza et al., 2023\] and CellMarker 2.0 \[Hu et al., 2023\] databases. Co-expression network analysis was performed using BioNERO (v1.12.0) \[Almeida-Silva et al., 2022\], employing signed hybrid network topology with Pearson correlation metrics. Potential batch effects were addressed using the removeBatchEffect function from the limma package \[Ritchie et al., 2015\]. Functional annotation of co-expressed gene modules included over-representation analysis against multiple pathway databases including MSigDB, KEGG \[Kanehisa et al., 2025\], Reactome \[Milacic et al., 2024\], and WikiPathways \[Agrawal et al., 2024\]. Protein-protein interaction networks were reconstructed using the STRING database v12.0 through the STRINGdb (v2.16.4) Bioconductor package \[Szklarczyk et al., 2023\]. Visualization of analytical results was achieved using a combination of pheatmap (v1.0.12) for heatmap generation, ggplot2 (v3.5.1) for general plotting, and EnhancedVolcano (v1.22.0) for specialized visualization of differential expression results. The entire analytical workflow was implemented in R (v4.4.2).
 </p>
 
 ```{mermaid}
@@ -246,6 +246,8 @@ Principal component analysis ([PCA](https://en.wikipedia.org/wiki/Principal_comp
 
 ```{r}
 #| echo: false
+#| message: false
+#| warning: false
 # Make PCA visualization
 vsd <- as.data.frame(assay(vst(ddsHTSeq)))
 
@@ -366,7 +368,8 @@ VolcanoPlot1 <- EnhancedVolcano(DEG_BIF_add,
                 drawConnectors = TRUE, 
                 # widthConnectors = 0.75, 
                 gridlines.major = FALSE, 
-                gridlines.minor = FALSE)
+                gridlines.minor = FALSE, 
+                ylim = c(0,3.2))
 
 VolcanoPlot2 <- EnhancedVolcano(DEG_LAC_add,
                 lab = DEG_LAC_add$SYMBOL,
@@ -379,7 +382,8 @@ VolcanoPlot2 <- EnhancedVolcano(DEG_LAC_add,
                 drawConnectors = TRUE, 
                 # widthConnectors = 0.75, 
                 gridlines.major = FALSE, 
-                gridlines.minor = FALSE)
+                gridlines.minor = FALSE,
+                ylim = c(0,4))
 
 VolcanoPlot3 <- EnhancedVolcano(DEG_BIF_LAC_add,
                 lab = DEG_BIF_LAC_add$SYMBOL,
@@ -392,7 +396,8 @@ VolcanoPlot3 <- EnhancedVolcano(DEG_BIF_LAC_add,
                 drawConnectors = TRUE, 
                 # widthConnectors = 0.75, 
                 gridlines.major = FALSE, 
-                gridlines.minor = FALSE)
+                gridlines.minor = FALSE,
+                ylim = c(0,5))
 ```
 
 #### M_BIF vs M
@@ -500,11 +505,10 @@ VolcanoPlot3
 
 ## Gene set enrichment analysis
 <p style="text-align: justify;">
-Gene Set Enrichment Analysis ([GSEA](https://en.wikipedia.org/wiki/Gene_set_enrichment_analysis)) was employed to evaluate whether predefined gene sets exhibited statistically significant and concordant differences between biological states (e.g., phenotypic groups). This computational approach was implemented using multiple databases, enabling comprehensive identification of biological functions associated with the experimental conditions. For this analysis, we specifically utilized the HALLMARK `MSigDB` gene sets. The complete GSEA results are presented in Figure 9 and Tables 7-9. To delineate cell-type-specific expression patterns, we performed marker analysis using the Mouse `Cell Marker 2.0` database, with results visualized in Figure 10 and detailed in Tables 10-12. Complementary to this, Gene Set Variation Analysis (`GSVA`) was conducted to examine HALLMARK `MSigDB` gene sets in a sample-oriented manner (Figures 11-16). The investigation was extended to immune cell profiling through two complementary approaches: `mMCP-counter` was implemented for broad immune cell type quantification (Figure 17), while`GSVA` was specifically applied to assess critical immune parameters including M1/M2 macrophage polarization ratios and CD8+ T cell abundance (Figures 18-21).
+Gene Set Enrichment Analysis ([GSEA](https://en.wikipedia.org/wiki/Gene_set_enrichment_analysis)) was employed to evaluate whether predefined gene sets exhibited statistically significant and concordant differences between biological states (e.g., phenotypic groups). This computational approach was implemented using multiple databases, enabling comprehensive identification of biological functions associated with the experimental conditions. For this analysis, we specifically utilized the HALLMARK `MSigDB` gene sets. The complete GSEA results are presented in Figure 9 and Tables 7-9. To delineate cell-type-specific expression patterns, we performed marker analysis using the Mouse `Cell Marker 2.0` database, with results visualized in Figure 10 and detailed in Tables 10-12.
 <p>
 
 #### MSigDb Hallmark
-
 ```{r}
 #| message: false
 #| warning: false
@@ -627,7 +631,6 @@ heatmap.hallmark
 ```
 
 #### Cell Marker 2.0
-
 ```{r}
 #| message: false
 #| warning: false
@@ -779,11 +782,10 @@ heatmap.immune
 
 ## Co-expression analysis
 <p style="text-align: justify;">
-[Gene co-expression analysis](https://en.wikipedia.org/wiki/Gene_co-expression_network) was performed to identify functionally related gene clusters and investigate their potential associations with phenotypic traits. Prior to analysis, technical batch effects were removed from the expression matrix using the removeBatchEffect function implemented in the `limma` package. `PCA` of the batch-corrected data showed similar sample clustering patterns to the uncorrected dataset (Figures 22 and 23), with `PERMANOVA` confirming the effective removal of batch effects while revealing no significant associations with experimental groups. The `BioNERO` package identified several co-expression modules showing differential associations with experimental conditions. Notably, the greenyellow and sienna3 modules demonstrated positive correlations with the untreated melanoma group, while the pink and royalblue modules showed negative associations (Figures 24-27, Tables 13 and 14). Functional characterization through [over-representation analysis](https://en.wikipedia.org/wiki/Pathway_analysis) revealed significant biological pathways enriched in these modules (Tables 15 and 16). Hub gene analysis identified key regulatory elements within each module (Tables 17 and 18), with protein-protein interaction networks visualized for selected modules (Figure 28). Additional network characterization using `STRING` database highlighted potential functional relationships among module genes (Figures 29 and 30).
+[Gene co-expression analysis](https://en.wikipedia.org/wiki/Gene_co-expression_network) was performed to identify functionally related gene clusters and investigate their potential associations with phenotypic traits. Prior to analysis, technical batch effects were removed from the expression matrix using the removeBatchEffect function implemented in the `limma` package. `PCA` of the batch-corrected data showed similar sample clustering patterns to the uncorrected dataset (Figures 11 and 12), with `PERMANOVA` confirming the effective removal of batch effects while revealing no significant associations with experimental groups. The `BioNERO` package identified several co-expression modules showing differential associations with experimental conditions. Notably, the greenyellow and sienna3 modules demonstrated positive correlations with the untreated melanoma group, while the pink and royalblue modules showed negative associations (Figures 13-16, Tables 13 and 14). Functional characterization through [over-representation analysis](https://en.wikipedia.org/wiki/Pathway_analysis) revealed significant biological pathways enriched in these modules (Tables 15 and 16). Hub gene analysis identified key regulatory elements within each module (Tables 17 and 18), with protein-protein interaction networks visualized for selected modules (Figure 17). Additional network characterization using `STRING` database highlighted potential functional relationships among module genes (Figures 18-25 and 30).
 <p>
 
 #### Batch correction
-
 ```{r}
 #| include: false
 vsd_2 <- vst(ddsHTSeq, blind = F)
@@ -962,7 +964,7 @@ expression_plot_4 <- plot_expression_profile(
 expression_plot <- ggarrange(expression_plot_1, expression_plot_2, expression_plot_3, expression_plot_4, ncol = 1, common.legend = T)
 ```
 
-[Figure 26](figures/module_trait_cor_plot.pdf)
+[Figure 15](figures/module_trait_cor_plot.pdf)
 
 #### Co-expressed modules linked to M group
 ```{r fig.height=8, fig.width=6}
@@ -1237,42 +1239,38 @@ net_plot
 ```
 
 #### STRING analysis of modules
-```{r}
-#| include: false
-string_db <- STRINGdb$new(version = "12.0", species = 10090, score_threshold = 100)
-
-mapped_1 <- string_db$map(selected_modules_add[selected_modules_add$modules %in% c("greenyellow", "sienna3"),], "ENSEMBL", removeUnmappedRows = T)
-mapped_2 <- string_db$map(selected_modules_add[selected_modules_add$modules %in% c("pink", "royalblue"),], "ENSEMBL", removeUnmappedRows = T)
-
-# pdf("string_1.pdf", width = 10, height = 10)
-# string_db$plot_network(mapped_1$STRING_id, required_score = 400)
-# dev.off()
-
-# pdf("string_2.pdf", width = 10, height = 10)
-# string_db$plot_network(mapped_2$STRING_id, required_score = 400)
-# dev.off()
-```
-
-[Figure 18](figures/string_1.pdf)
+[Figure 18](figures/string_1.png)
 
 [Figure 18 - STRING website](https://string-db.org/cgi/network?taskId=bSgjgDkvray5&sessionId=b4tWjn72YI6o)
 
-```{r fig.height=10, fig.width=10}
-#| echo: false
-#| message: false
-#| warning: false
-#| fig-cap: "Figure 18. STRING database network plot obtained using DEG positively linked to M group."
-string_db$plot_network(mapped_1$STRING_id, required_score = 400)
-```
+![Figure 18. PPI network plot obtained using co-expression modules positively linked to M group.](figures/string_1.png)
 
-[Figure 19](figures/string_2.pdf)
+[Figure 19](figures/cluster_1.png)
 
-[Figure 19 - STRING website](https://string-db.org/cgi/network?taskId=bemciZpRn4fZ&sessionId=b4tWjn72YI6o)
+![Figure 19. Cluster analysis results obtained using co-expression modules positively linked to M group.](figures/cluster_1.png)
 
-```{r fig.height=10, fig.width=10}
-#| echo: false
-#| message: false
-#| warning: false
-#| fig-cap: "Figure 19. STRING database network plot obtained using DEG negatively linked to M group."
-string_db$plot_network(mapped_2$STRING_id, required_score = 400)
-```
+[Figure 20](figures/enrichment_1-1.svg)
+
+![Figure 20. KEGG pathway enrichment in a co-expression network positively associated with group M.](figures/enrichment_1-1.svg)
+
+[Figure 21](figures/enrichment_1-2.svg)
+
+![Figure 21. Reactome pathway enrichment in a co-expression network positively associated with group M.](figures/enrichment_1-2.svg)
+
+[Figure 22](figures/string_2.png)
+
+[Figure 22 - STRING website](https://version-12-0.string-db.org/cgi/network?networkId=bf3KDUz3lYar)
+
+![Figure 22. PPI network plot obtained using co-expression modules negatively linked to M group.](figures/string_2.png)
+
+[Figure 23](figures/cluster_1.png)
+
+![Figure 23. Cluster analysis results obtained using co-expression modules negatively linked to M group.](figures/cluster_1.png)
+
+[Figure 24](figures/enrichment_2-1.svg)
+
+![Figure 24. Gene ontology (Cellular components) pathway enrichment in a co-expression network negatively associated with group M.](figures/enrichment_2-1.svg)
+
+[Figure 25](figures/enrichment_2-2.svg)
+
+![Figure 25. Tissue expression pathway enrichment in a co-expression network negatively associated with group M.](figures/enrichment_2-2.svg)
