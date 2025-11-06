@@ -3,6 +3,8 @@ format: html
 editor: source
 ---
 
+
+
 # Material and methods
 ## RNA expraction and sequencing
 <p style="text-align: justify;">
@@ -13,6 +15,8 @@ Total RNA was isolated using the RNeasy Plant Mini Kit (QIAGEN, Germany) followi
 <p style="text-align: justify;">
 Initial quality assessment of murine transcriptomic data was performed using FastQC (v0.12.1), with aggregated reports generated via MultiQC (v1.27.1) \[Ewels et al., 2016\]. Raw reads were processed using fastp (v0.23.4) to remove low-quality sequences \[Chen et al., 2018\]. Read alignment was subsequently conducted with STAR (v2.7.11) \[Dobin et al., 2013\] against the *Mus musculus* reference genome (GENCODE GRCm39.vM36) using the annotation file gencode.vM36.chr_patch_hapl_scaff.annotation.gtf, followed by gene-level quantification with HTSeq-count (v2.0.5) \[Anders et al., 2015\]. Differential gene expression analysis between experimental groups was performed using DESeq2 (v1.44.0) \[Love et al., 2014\]. For comprehensive functional interpretation, we implemented gene-set enrichment analysis (GSEA) through fgsea (v1.31.6) \[Korotkevich et al., 2016\] and clusterProfiler (v4.12.6) \[Wu et al., 2021\], utilizing both the MSigDB \[Castanza et al., 2023\] and CellMarker 2.0 \[Hu et al., 2023\] databases. Immune cell enrichment patterns were further assessed via Gene Set Variation Analysis (GSVA) \[Hänzelmann et al., 2013\]. Immune cell populations were deconvoluted from tumor transcriptome profiles using the mMCP-counter algorithm \[Petitprez et al., 2020\]. Co-expression network analysis was performed using BioNERO (v1.12.0) \[Almeida-Silva et al., 2022\], employing signed hybrid network topology with Pearson correlation metrics. Potential batch effects were addressed using the removeBatchEffect function from the limma package \[Ritchie et al., 2015\]. Functional annotation of co-expressed gene modules included over-representation analysis against multiple pathway databases including MSigDB, KEGG \[Kanehisa et al., 2025\], Reactome \[Milacic et al., 2024\], and WikiPathways \[Agrawal et al., 2024\]. Protein-protein interaction networks were reconstructed using the STRING database v12.0 through the STRINGdb (v2.16.4) Bioconductor package \[Szklarczyk et al., 2023\]. Visualization of analytical results was achieved using a combination of pheatmap (v1.0.12) for heatmap generation, ggplot2 (v3.5.1) for general plotting, and EnhancedVolcano (v1.22.0) for specialized visualization of differential expression results. The entire analytical workflow was implemented in R (v4.4.2).
 </p>
+
+
 
 ```{mermaid}
 flowchart LR
@@ -27,6 +31,8 @@ flowchart LR
     J --> L{"ORA"} & N{"STRING"}
     G --> V{"GSVA"}
 ```
+
+
 
 ## References
 1)  [Ewels, Philip, et al. "MultiQC: summarize analysis results for multiple tools and samples in a single report." Bioinformatics 32.19 (2016): 3047-3048.](https://academic.oup.com/bioinformatics/article/32/19/3047/2196507)
@@ -45,6 +51,8 @@ flowchart LR
 14) [Szklarczyk, Damian, et al. "The STRING database in 2023: protein–protein association networks and functional enrichment analyses for any sequenced genome of interest." Nucleic acids research 51.D1 (2023): D638-D646.](https://academic.oup.com/nar/article/51/D1/D638/6825349)
 
 # Results
+
+
 ```{r}
 #| message: false
 #| warning: false
@@ -122,6 +130,8 @@ colnames(SYMBOL)[1] <- "ENSEMBL"
 convertID <- merge(SYMBOL, ENTREZID)
 ```
 
+
+
 ## Experimental Design and Sample Overview
 <p style="text-align: justify;">
 The analysis included a total of 14 transcriptomic samples representing three experimental groups: 1) melanoma (n=6); 2) melanoma supplemented with *Bifidobacterium adolescentis* 150 (n=6); and 3) melanoma supplemented with *Lacticaseibacillus rhamnosus* K32 (n=2) (Table 1). The study was conducted in two sequential replicates: the first replicate comprised only the melanoma and *B. adolescentis*-supplemented groups (n=8), while the second replicate incorporated all three experimental conditions (n=6). The genomes of the bacteria used in this experiment are available at the following links [GCF_001010915.1](https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_001010915.1/) and [GCF_000735255.1](https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_000735255.1/). For clarity in data interpretation, we introduced the following standardized codings:
@@ -141,6 +151,8 @@ Experimental batch:
 
 2)  Second experiment --\> `batch_2`
 
+
+
 ```{r}
 #| echo: false
 meta_data_d <- meta_data[order(meta_data$group),]
@@ -155,6 +167,8 @@ datatable(meta_data_d[-2],
                          buttons = c('csv', 'excel')))
 ```
 
+
+
 ## Quality control
 <p style="text-align: justify;">
 Following quality filtering with `fastp`, aggregated quality metrics were compiled using `MultiQC` to summarize the `FastQC` reports. As illustrated in Figure 1, the `MultiQC` quality profile indicates that the sequencing data maintained adequate overall quality. Post-filtering, approximately 198 million reads (mean ± SD: 14 ± 5 million reads per sample) were retained for downstream analysis, with an average of 16 ± 7% of reads per sample removed during quality control (see Table 2 for detailed filtering statistics). Transcript abundance was quantified using the `HTSeq` tool. Figure 3 displays the distribution of HTSeq counts across all experimental samples. The resulting gene expression count matrix was normalized using the [median of ratios method](https://hbctraining.github.io/DGE_workshop/lessons/02_DGE_count_normalization.html), with normalized values presented in Table 4.
@@ -167,6 +181,8 @@ Following quality filtering with `fastp`, aggregated quality metrics were compil
 ![Figure 1. Summary MultiQC report.](figures/fastqc-status-check-heatmap.svg)
 
 #### Reads filtering by quality statistic
+
+
 ```{r}
 #| label: fastp filtered table
 #| echo: false
@@ -178,7 +194,11 @@ datatable(reads.counts,
                          buttons = c('csv', 'excel')))
 ```
 
+
+
 #### Mapping reads to reference counts
+
+
 ```{r}
 #| echo: false
 
@@ -216,7 +236,11 @@ download_this(
 counts_plot
 ```
 
+
+
 #### Normalized counts table
+
+
 ```{r}
 #| echo: false
 #| message: false
@@ -239,10 +263,14 @@ datatable(COU.add,
                          buttons = c('csv', 'excel')))
 ```
 
+
+
 ## Principal component analysis
 <p style="text-align: justify;">
 Principal component analysis ([PCA](https://en.wikipedia.org/wiki/Principal_component_analysis)) was employed as a linear dimensional reduction technique for exploratory data analysis and visualization. Prior to `PCA`, the expression data underwent variance-stabilizing transformation ([VST](https://en.wikipedia.org/wiki/Variance-stabilizing_transformation)), which derives stable variance estimates from fitted dispersion-mean relationships. This transformation processes count data normalized by size factors, generating a matrix of approximately homeostatic values characterized by constant variance across the range of mean expression levels, while simultaneously accounting for library size differences. The transformed data were visualized through bi-dimensional projection of the first two principal components (Figure 4), with the proportion of explained variance for each component detailed in Figure 5. Permutation multivariate analysis of variance ([PERMANOVA](https://en.wikipedia.org/wiki/Permutational_analysis_of_variance)) revealed statistically significant associations between expression profiles and batch effects, while no significant relationships with experimental groups were detected.
 <p>
+
+
 
 ```{r}
 #| echo: false
@@ -307,10 +335,14 @@ PERMANOVA <- adonis2(t(vsd) ~  batch + group, data = meta_data, permutations = 9
 PERMANOVA
 ```
 
+
+
 ## Differential expression analysis
 <p style="text-align: justify;">
 Differential expression analysis was conducted using the `DESeq2` package, employing the model formula `~ batch + group` to account for batch-related dispersion effects. The analysis revealed positive log2 fold change (lfc) values associated with both *B. adolescentis* 150 and *L. rhamnosus* K32 supplementation groups, while negative values corresponded to the untreated melanoma control group. `DESeq2` performs differential expression analysis by fitting generalized linear models to negative binomial distributed counts and evaluating linear contrasts between experimental groups. Our results demonstrated 3 significantly up-regulated and 16 down-regulated genes in the `M_BIF` group compared to the `M` control group. For the `M_LAC` comparison, 21 differentially expressed genes were identified relative to the `M` group, while no significant changes were observed in the reverse comparison. When directly comparing bacterial supplementation groups, 39 genes were associated with `M_BIF` and 116 with `M_LAC`. Differentially expressed genes were determined using stringent thresholds (adjusted p-value \< 0.05, \|lfc\| \> 1). Complete statistical results of the differential analysis are presented in Tables 4-6. Visual representation of the results through volcano plots (Figures 6-8) effectively illustrates the relationship between statistical significance (-log10 p-value) and magnitude of expression changes (lfc) across all comparisons.
 <p>
+
+
 
 ```{r}
 #| echo: false
@@ -395,7 +427,11 @@ VolcanoPlot3 <- EnhancedVolcano(DEG_BIF_LAC_add,
                 gridlines.minor = FALSE)
 ```
 
+
+
 #### M_BIF vs M
+
+
 ```{r}
 #| echo: false
 #| message: false
@@ -430,7 +466,11 @@ download_this(
 VolcanoPlot1
 ```
 
+
+
 #### M_LAC vs M
+
+
 ```{r}
 #| echo: false
 #| message: false
@@ -464,7 +504,11 @@ download_this(
 VolcanoPlot2
 ```
 
+
+
 #### M_BIF vs M_LAC
+
+
 ```{r}
 #| echo: false
 #| message: false
@@ -498,12 +542,16 @@ download_this(
 VolcanoPlot3
 ```
 
+
+
 ## Gene set enrichment analysis
 <p style="text-align: justify;">
 Gene Set Enrichment Analysis ([GSEA](https://en.wikipedia.org/wiki/Gene_set_enrichment_analysis)) was employed to evaluate whether predefined gene sets exhibited statistically significant and concordant differences between biological states (e.g., phenotypic groups). This computational approach was implemented using multiple databases, enabling comprehensive identification of biological functions associated with the experimental conditions. For this analysis, we specifically utilized the HALLMARK `MSigDB` gene sets. The complete GSEA results are presented in Figure 9 and Tables 7-9. To delineate cell-type-specific expression patterns, we performed marker analysis using the Mouse `Cell Marker 2.0` database, with results visualized in Figure 10 and detailed in Tables 10-12. Complementary to this, Gene Set Variation Analysis (`GSVA`) was conducted to examine HALLMARK `MSigDB` gene sets in a sample-oriented manner (Figures 11-16). The investigation was extended to immune cell profiling through two complementary approaches: `mMCP-counter` was implemented for broad immune cell type quantification (Figure 17), while`GSVA` was specifically applied to assess critical immune parameters including M1/M2 macrophage polarization ratios and CD8+ T cell abundance (Figures 18-21).
 <p>
 
 #### MSigDb Hallmark
+
+
 
 ```{r}
 #| message: false
@@ -583,7 +631,11 @@ heatmap.hallmark <- pheatmap::pheatmap(as.matrix(fgsea.all), cutree_rows = 7, cu
 # dev.off()
 ```
 
+
+
 ##### M_BIF vs M
+
+
 ```{r}
 #| echo: false
 datatable(fgsea.bif.filter[-8], 
@@ -594,7 +646,11 @@ datatable(fgsea.bif.filter[-8],
                          buttons = c('csv', 'excel')))
 ```
 
+
+
 ##### M_LAC vs M
+
+
 ```{r}
 #| echo: false
 datatable(fgsea.lac.filter[-8], 
@@ -605,7 +661,11 @@ datatable(fgsea.lac.filter[-8],
                          buttons = c('csv', 'excel')))
 ```
 
+
+
 ##### M_BIF vs M_LAC
+
+
 ```{r}
 #| echo: false
 datatable(fgsea.bif.lac.filter[-8], 
@@ -616,7 +676,11 @@ datatable(fgsea.bif.lac.filter[-8],
                          buttons = c('csv', 'excel')))
 ```
 
+
+
 [Figure 9](figures/heatmap.hallmark.pdf)
+
+
 
 ```{r fig.width=7, fig.height=10}
 #| echo: false
@@ -626,7 +690,11 @@ datatable(fgsea.bif.lac.filter[-8],
 heatmap.hallmark
 ```
 
+
+
 #### Cell Marker 2.0
+
+
 
 ```{r}
 #| message: false
@@ -734,7 +802,11 @@ heatmap.immune <- pheatmap::pheatmap(t(cells.all.s), display_numbers = T, cutree
 # dev.off()
 ```
 
+
+
 ##### M_BIF vs M
+
+
 ```{r}
 #| echo: false
 datatable(cells.bif_add, 
@@ -745,7 +817,11 @@ datatable(cells.bif_add,
                          buttons = c('csv', 'excel')))
 ```
 
+
+
 ##### M_LAC vs M
+
+
 ```{r}
 #| echo: false
 datatable(cells.lac_add, 
@@ -756,7 +832,11 @@ datatable(cells.lac_add,
                          buttons = c('csv', 'excel')))
 ```
 
+
+
 ##### M_BIF vs M_LAC
+
+
 ```{r}
 #| echo: false
 datatable(cells.bif.lac_add, 
@@ -767,7 +847,11 @@ datatable(cells.bif.lac_add,
                          buttons = c('csv', 'excel')))
 ```
 
+
+
 [Figure 10](figures/heatmap.immune.pdf)
+
+
 
 ```{r fig.width=5, fig.height=7}
 #| echo: false
@@ -777,12 +861,16 @@ datatable(cells.bif.lac_add,
 heatmap.immune
 ```
 
+
+
 ## Co-expression analysis
 <p style="text-align: justify;">
 [Gene co-expression analysis](https://en.wikipedia.org/wiki/Gene_co-expression_network) was performed to identify functionally related gene clusters and investigate their potential associations with phenotypic traits. Prior to analysis, technical batch effects were removed from the expression matrix using the removeBatchEffect function implemented in the `limma` package. `PCA` of the batch-corrected data showed similar sample clustering patterns to the uncorrected dataset (Figures 22 and 23), with `PERMANOVA` confirming the effective removal of batch effects while revealing no significant associations with experimental groups. The `BioNERO` package identified several co-expression modules showing differential associations with experimental conditions. Notably, the greenyellow and sienna3 modules demonstrated positive correlations with the untreated melanoma group, while the pink and royalblue modules showed negative associations (Figures 24-27, Tables 13 and 14). Functional characterization through [over-representation analysis](https://en.wikipedia.org/wiki/Pathway_analysis) revealed significant biological pathways enriched in these modules (Tables 15 and 16). Hub gene analysis identified key regulatory elements within each module (Tables 17 and 18), with protein-protein interaction networks visualized for selected modules (Figure 28). Additional network characterization using `STRING` database highlighted potential functional relationships among module genes (Figures 29 and 30).
 <p>
 
 #### Batch correction
+
+
 
 ```{r}
 #| include: false
@@ -850,7 +938,11 @@ PERMANOVA <- adonis2(t(mat) ~  batch + group, data = meta_data, permutations = 9
 PERMANOVA
 ```
 
+
+
 #### Net construction
+
+
 ```{r}
 #| include: false
 final_exp <- exp_preprocess(
@@ -962,9 +1054,13 @@ expression_plot_4 <- plot_expression_profile(
 expression_plot <- ggarrange(expression_plot_1, expression_plot_2, expression_plot_3, expression_plot_4, ncol = 1, common.legend = T)
 ```
 
+
+
 [Figure 26](figures/module_trait_cor_plot.pdf)
 
 #### Co-expressed modules linked to M group
+
+
 ```{r fig.height=8, fig.width=6}
 #| echo: false
 #| fig-cap: "Figure 15. Co-expression module association with experimental groups."
@@ -1099,7 +1195,11 @@ datatable(selected_modules_add[!selected_modules_add$modules %in% c("greenyellow
                          buttons = c('csv', 'excel')))
 ```
 
+
+
 #### Over-representation analysis
+
+
 ```{r}
 #| echo: false
 #| message: false
@@ -1124,7 +1224,11 @@ datatable(enrich_2,
                          buttons = c('csv', 'excel')))
 ```
 
+
+
 #### Hub genes analysis and visualization
+
+
 ```{r}
 #| include: false
 hubs <- get_hubs_gcn(final_exp, net)
@@ -1236,7 +1340,11 @@ download_this(
 net_plot
 ```
 
+
+
 #### STRING analysis of modules
+
+
 ```{r}
 #| include: false
 string_db <- STRINGdb$new(version = "12.0", species = 10090, score_threshold = 100)
@@ -1253,9 +1361,13 @@ mapped_2 <- string_db$map(selected_modules_add[selected_modules_add$modules %in%
 # dev.off()
 ```
 
+
+
 [Figure 18](figures/string_1.pdf)
 
 [Figure 18 - STRING website](https://string-db.org/cgi/network?taskId=bSgjgDkvray5&sessionId=b4tWjn72YI6o)
+
+
 
 ```{r fig.height=10, fig.width=10}
 #| echo: false
@@ -1265,9 +1377,13 @@ mapped_2 <- string_db$map(selected_modules_add[selected_modules_add$modules %in%
 string_db$plot_network(mapped_1$STRING_id, required_score = 400)
 ```
 
+
+
 [Figure 19](figures/string_2.pdf)
 
 [Figure 19 - STRING website](https://string-db.org/cgi/network?taskId=bemciZpRn4fZ&sessionId=b4tWjn72YI6o)
+
+
 
 ```{r fig.height=10, fig.width=10}
 #| echo: false
