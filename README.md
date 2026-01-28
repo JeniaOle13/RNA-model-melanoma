@@ -1,4 +1,4 @@
-# transcriptomic response of a mice model melanoma to probiotic bacteria
+# Transcriptomic response of a mice model melanoma to probiotic bacteria
 
 ## Overview
 
